@@ -14,7 +14,7 @@ volumes:
 services:
 
   home-page-service:
-    build: https://github.com/DevOps22-Grupp1/home-page-service#prometheus-fix
+    build: https://github.com/DevOps22-Grupp1/home-page-service#prometheus-fix:backend
     networks:
       - my_network
     ports:
@@ -65,7 +65,7 @@ services:
       ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo-home-page-service:27017/
 
   order-processing-service:
-    build: https://github.com/DevOps22-Grupp1/home-page-service#project-merge
+    build: https://github.com/DevOps22-Grupp1/home-page-service#project-merge:backend
     networks:
       - my_network
     depends_on:
@@ -114,7 +114,7 @@ services:
       ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo-order-processing-service:27017/
 
   produkt-catalog-service:
-    build: https://github.com/DevOps22-Grupp1/home-page-service#project-merge
+    build: https://github.com/DevOps22-Grupp1/home-page-service#project-merge:backend
     networks:
       - my_network
     depends_on:
