@@ -6,23 +6,21 @@ networks:
     driver: bridge
 
 volumes:
-  mongo-data-home-page-service:
-  mongo-data-order-processing-service:
-  mongo-produkt-catalog-service:
+  mongo-product-service-data:
+  mongo-user-service-data:
+  mongo-order-service-data:
+  
 
 
 services:
 
   home-page-service:
-    build: github.com/DevOps22-Grupp1/home-page-service#prometheus-fix:backend
+    image: svenpaj/home-page-service:1.0.0
     networks:
       - my_network
     ports:
-      - "5002:5002"
-    depends_on:
-      mongo-home-page-service:
-        condition: service_healthy
-
+      - "4004:4004"
+  
   prometheus-home-page-service:
     image: prom/prometheus:latest
     ports:
@@ -31,123 +29,45 @@ services:
       - my_network
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yaml
+  
+  grafana:
+    image: grafana/grafana
+    restart: always
+    ports:
+      - 3005:3000
+    networks:
+      - my_network
 
-  mongo-home-page-service:
+  product-catalog-service:
+    image: svenpaj/product-catalog-service:1.0.0
+    networks:
+      - my_network
+    ports:
+      - "4005:4005"
+    depends_on:
+      mongo-1:
+        condition: service_healthy
+
+  mongo-1:
     image: mongo
     restart: always
     networks:
       - my_network
     volumes:
-      - ./mongo-data-home-page-service:/data/db
+      - ./mongo-product-service-data:/data/db
+      - ./init/init-mongo.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
     healthcheck:
-      test: echo 'mongo-home-page-service.runCommand("ping").ok' | mongosh mongo-home-page-service:27017 --quiet
+      test: echo 'mongo.runCommand("ping").ok' | mongosh mongo-1:27017 --quiet
       interval: 5s
       timeout: 5s
-      retries: 10
-      start_period: 40s
+      retries: 20
+      start_period: 50s
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
+      MONGO_INITDB_DATABASE: allProducts
 
-  mongo-express-home-page-service:
-    image: mongo-express
-    restart: always
-    ports:
-      - 8081:8081
-    networks:
-      - my_network
-    depends_on:
-      mongo-home-page-service:
-        condition: service_healthy
-    environment:
-      ME_CONFIG_MONGODB_ADMINUSERNAME: root
-      ME_CONFIG_MONGODB_ADMINPASSWORD: example
-      ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo-home-page-service:27017/
-
-  order-processing-service:
-    build: github.com/DevOps22-Grupp1/order-processing-service/#project-merge:backend
-    networks:
-      - my_network
-    depends_on:
-      mongo-order-processing-service:
-        condition: service_healthy
-
-  prometheus-order-processing-service:
-    image: prom/prometheus:latest
-    ports:
-      - "9091:9090"
-    networks:
-      - my_network
-    volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yaml
-
-  mongo-order-processing-service:
-    image: mongo
-    restart: always
-    networks:
-      - my_network
-    volumes:
-      - ./mongo-data-order-processing-service:/data/db
-    healthcheck:
-      test: echo 'mongo-order-processing-service.runCommand("ping").ok' | mongosh mongo-order-processing-service:27017 --quiet
-      interval: 5s
-      timeout: 5s
-      retries: 10
-      start_period: 40s
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: example
-
-  mongo-express-order-processing-service:
-    image: mongo-express
-    restart: always
-    ports:
-      - 8084:8081
-    networks:
-      - my_network
-    depends_on:
-      mongo-order-processing-service:
-        condition: service_healthy
-    environment:
-      ME_CONFIG_MONGODB_ADMINUSERNAME: root
-      ME_CONFIG_MONGODB_ADMINPASSWORD: example
-      ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo-order-processing-service:27017/
-
-  produkt-catalog-service:
-    build: github.com/DevOps22-Grupp1/produkt-catalog-service#project-merge:backend
-    networks:
-      - my_network
-    depends_on:
-      mongo-produkt-catalog-service:
-        condition: service_healthy
-
-  prometheus-produkt-catalog-service:
-    image: prom/prometheus:latest
-    ports:
-      - "9094:9090"
-    networks:
-      - my_network
-    volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yaml
-
-  mongo-produkt-catalog-service:
-    image: mongo
-    restart: always
-    networks:
-      - my_network
-    volumes:
-      - ./mongo-data-produkt-catalog-service:/data/db
-    healthcheck:
-      test: echo 'mongo-produkt-catalog-service.runCommand("ping").ok' | mongosh mongo-produkt-catalog-service:27017 --quiet
-      interval: 5s
-      timeout: 5s
-      retries: 10
-      start_period: 40s
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: example
-
-  mongo-express-produkt-catalog-service:
+  mongo-express-1:
     image: mongo-express
     restart: always
     ports:
@@ -155,9 +75,99 @@ services:
     networks:
       - my_network
     depends_on:
-      mongo-produkt-catalog-service:
+      mongo-1:
         condition: service_healthy
     environment:
       ME_CONFIG_MONGODB_ADMINUSERNAME: root
       ME_CONFIG_MONGODB_ADMINPASSWORD: example
-      ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo-produkt-catalog-service:27017/
+      ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo:27017/
+
+  user-management-service:
+    image: svenpaj/user-management-service:1.0.0
+    networks:
+      - my_network
+    ports:
+      - "4006:4006"
+    depends_on:
+      mongo-2:
+        condition: service_healthy
+
+
+  mongo-2:
+    image: mongo
+    restart: always
+    networks:
+      - my_network
+    volumes:
+      - ./mongo-user-service-data:/data/db
+      - ./init/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+    healthcheck:
+      test: echo 'mongo.runCommand("ping").ok' | mongosh mongo-2:27017 --quiet
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 50s
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+      MONGO_INITDB_DATABASE: allUsers
+
+  mongo-express-2:
+    image: mongo-express
+    restart: always
+    ports:
+      - 8083:8081
+    networks:
+      - my_network
+    depends_on:
+      mongo-2:
+        condition: service_healthy
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: example
+      ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo-2:27017/
+
+  order-processing-service:
+    image: svenpaj/order-processing-service:1.0.0
+    networks:
+      - my_network
+    ports:
+      - "4007:4007"
+    depends_on:
+      mongo-3:
+        condition: service_healthy
+
+
+  mongo-3:
+    image: mongo
+    restart: always
+    networks:
+      - my_network
+    volumes:
+      - ./mongo-order-service-data:/data/db
+      - ./init/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+    healthcheck:
+      test: echo 'mongo.runCommand("ping").ok' | mongosh mongo-3:27017 --quiet
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 200s
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+      MONGO_INITDB_DATABASE: allOrders
+
+  mongo-express-3:
+    image: mongo-express
+    restart: always
+    ports:
+      - 8084:8081
+    networks:
+      - my_network
+    depends_on:
+      mongo-3:
+        condition: service_healthy
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: example
+      ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo-3:27017/
