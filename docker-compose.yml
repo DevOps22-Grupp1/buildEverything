@@ -39,7 +39,7 @@ services:
       - my_network
 
   product-catalog-service:
-    image: svenpaj/product-catalog-service:1.0.0
+    image: svenpaj/product-service:1.0.0
     networks:
       - my_network
     ports:
@@ -55,13 +55,13 @@ services:
       - my_network
     volumes:
       - ./mongo-product-service-data:/data/db
-      - ./init/init-mongo.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+      - ./init/init-mongo-products.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
     healthcheck:
       test: echo 'mongo.runCommand("ping").ok' | mongosh mongo-1:27017 --quiet
-      interval: 5s
-      timeout: 5s
+      interval: 10s
+      timeout: 10s
       retries: 20
-      start_period: 50s
+      start_period: 200s
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
@@ -83,7 +83,7 @@ services:
       ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo:27017/
 
   user-management-service:
-    image: svenpaj/user-management-service:1.0.0
+    image: svenpaj/user-service:1.0.0
     networks:
       - my_network
     ports:
@@ -100,13 +100,13 @@ services:
       - my_network
     volumes:
       - ./mongo-user-service-data:/data/db
-      - ./init/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+      - ./init/init-mongo-users.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
     healthcheck:
       test: echo 'mongo.runCommand("ping").ok' | mongosh mongo-2:27017 --quiet
-      interval: 5s
-      timeout: 5s
+      interval: 10s
+      timeout: 10s
       retries: 20
-      start_period: 50s
+      start_period: 200s
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
@@ -128,7 +128,7 @@ services:
       ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo-2:27017/
 
   order-processing-service:
-    image: svenpaj/order-processing-service:1.0.0
+    image: svenpaj/order-service:1.0.0
     networks:
       - my_network
     ports:
@@ -145,11 +145,11 @@ services:
       - my_network
     volumes:
       - ./mongo-order-service-data:/data/db
-      - ./init/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+      - ./init/init-mongo-orders.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
     healthcheck:
       test: echo 'mongo.runCommand("ping").ok' | mongosh mongo-3:27017 --quiet
-      interval: 5s
-      timeout: 5s
+      interval: 10s
+      timeout: 10s
       retries: 20
       start_period: 200s
     environment:
