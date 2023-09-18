@@ -65,7 +65,7 @@ services:
       ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo-home-page-service:27017/
 
   order-processing-service:
-    build: https://github.com/DevOps22-Grupp1/home-page-service#project-merge:backend
+    build: https://github.com/DevOps22-Grupp1/order-processing-service/#Project-merge:backend
     networks:
       - my_network
     depends_on:
@@ -114,7 +114,7 @@ services:
       ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo-order-processing-service:27017/
 
   produkt-catalog-service:
-    build: https://github.com/DevOps22-Grupp1/home-page-service#project-merge:backend
+    build: https://github.com/DevOps22-Grupp1/home-page-service#Project-merge:backend
     networks:
       - my_network
     depends_on:
