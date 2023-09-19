@@ -9,4 +9,4 @@ cd ..
 cd produkt-catalog-service
 rm -r mongo-data
 cd ..
-echo "Data removed!"
+echo "Data removed!!"
