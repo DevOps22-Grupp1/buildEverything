@@ -10,5 +10,6 @@ cd ..
 cd produkt-catalog-service
 git pull https://github.com/DevOps22-Grupp1/produkt-catalog-service project-merge
 docker compose up --detach
+cd ..
 
 echo "Up and running!"
