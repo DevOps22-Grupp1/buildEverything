@@ -1,4 +1,5 @@
 #! /bin/bash
+docker compose down
 cd home-page-service
 rm -r mongo-data
 cd ..
