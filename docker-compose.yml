@@ -14,14 +14,16 @@ volumes:
 
 services:
 
-  home-page-service:
-    image: svenpaj/home-page-service:1.0.0
+  frontend-service:
+    image: svenpaj/frontend-service:1.0.0
     networks:
       - my_network
     ports:
       - "4004:4004"
+    
+      
   
-  prometheus-home-page-service:
+  prometheus:
     image: prom/prometheus:latest
     ports:
       - "9092:9090"
@@ -80,7 +82,7 @@ services:
     environment:
       ME_CONFIG_MONGODB_ADMINUSERNAME: root
       ME_CONFIG_MONGODB_ADMINPASSWORD: example
-      ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo:27017/
+      ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo-1:27017/
 
   user-management-service:
     image: svenpaj/user-service:1.0.0

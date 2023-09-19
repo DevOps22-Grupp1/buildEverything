@@ -6,7 +6,7 @@ scrape_configs:
       - targets: ['order-processing-service:4007']
   - job_name: 'home-page-service'
     static_configs:
-      - targets: ['home-page-service:4004']
+      - targets: ['frontend-service:4004']
   - job_name: 'product-service'
     static_configs:
       - targets: ['product-catalog-service:4005']
