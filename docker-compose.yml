@@ -15,7 +15,7 @@ volumes:
 services:
 
   frontend-service:
-    image: svenpaj/frontend-service:1.0.0
+    image: svenpaj/frontend-service:1.0.1
     networks:
       - my_network
     ports:
