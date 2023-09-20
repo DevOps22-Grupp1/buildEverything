@@ -5,12 +5,12 @@ docker-compose pull
 docker compose up --detach
 cd ..
 cd order-processing-service
-git pull https://github.com/DevOps22-Grupp1/order-processing-service main
+git pull https://github.com/DevOps22-Grupp1/order-processing-service project-merge
 docker-compose pull
 docker compose up --detach
 cd ..
 cd produkt-catalog-service
-git pull https://github.com/DevOps22-Grupp1/produkt-catalog-service main
+git pull https://github.com/DevOps22-Grupp1/produkt-catalog-service project-merge
 docker-compose pull
 docker compose up --detach
 cd ..
