@@ -7,10 +7,12 @@
 	path = order-processing-service
 	url = https://github.com/DevOps22-Grupp1/order-processing-service
 	branch = main
+
 [submodule "produkt-catalog-service"]
 	path = produkt-catalog-service
 	url = https://github.com/DevOps22-Grupp1/produkt-catalog-service/
 	branch = main
+	
 [submodule "user-management-service"]
 	path = user-management-service
 	url = https://github.com/DevOps22-Grupp1/user-management-service
