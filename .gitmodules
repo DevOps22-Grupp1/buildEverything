@@ -11,3 +11,7 @@
 	path = produkt-catalog-service
 	url = https://github.com/DevOps22-Grupp1/produkt-catalog-service/
 	branch = project-merge
+[submodule "user-management-service"]
+	path = user-management-service
+	url = https://github.com/DevOps22-Grupp1/user-management-service
+	branch = main
