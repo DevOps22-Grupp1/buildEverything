@@ -1,13 +1,13 @@
 [submodule "home-page-service"]
 	path = home-page-service
 	url = https://github.com/DevOps22-Grupp1/home-page-service/
-	branch = prometheus-fix
+	branch = main
 	
 [submodule "order-processing-service"]
 	path = order-processing-service
 	url = https://github.com/DevOps22-Grupp1/order-processing-service
-	branch = project-merge
+	branch = main
 [submodule "produkt-catalog-service"]
 	path = produkt-catalog-service
 	url = https://github.com/DevOps22-Grupp1/produkt-catalog-service/
-	branch = project-merge
+	branch = main
