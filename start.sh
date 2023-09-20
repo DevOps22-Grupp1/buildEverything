@@ -14,5 +14,10 @@ git pull https://github.com/DevOps22-Grupp1/produkt-catalog-service project-merg
 docker-compose pull
 docker compose up --detach
 cd ..
+cd user-management-service
+git pull https://github.com/DevOps22-Grupp1/user-management-service main
+docker-compose pull
+docker compose up --detach
+cd ..
 
 echo "Up and running!"
