@@ -4,3 +4,20 @@ metadata:
   name: mongodb-configmap
 data:
   database_url: mongodb-service
+  createuser-script: |
+    mongo <<EOF
+    set -e 
+    use reporting
+    db.createUser(
+      {
+        user: "reportsUser",
+        pwd: "12345678",
+        roles: [
+           { role: "read", db: "reporting" },
+           { role: "read", db: "products" },
+           { role: "read", db: "sales" },
+           { role: "readWrite", db: "accounts" }
+        ]
+      }
+    )
+    EOF
