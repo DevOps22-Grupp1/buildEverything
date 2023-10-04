@@ -17,6 +17,7 @@ spec:
     containers:
       - name: home-page
         image: passwordnotsafe/home-page-service:1.0.0
+        imagePullPolicy: Always
         ports: 
         - containerPort: 4004
         env:
@@ -25,8 +26,36 @@ spec:
             configMapKeyRef:
               name: microservice-configmap
               key: hpPort
-
-
+        - name: USER_URL
+          valueFrom:
+            configMapKeyRef:
+              name: microservice-configmap
+              key: umUrl
+        - name: USER_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: microservice-configmap
+              key: umPort
+        - name: PRODUCT_URL
+          valueFrom:
+            configMapKeyRef:
+              name: microservice-configmap
+              key: pcUrl
+        - name: PRODUCT_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: microservice-configmap
+              key: pcPort
+        - name: ORDER_URL
+          valueFrom:
+            configMapKeyRef:
+              name: microservice-configmap
+              key: opUrl
+        - name: ORDER_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: microservice-configmap
+              key: opPORT
 ---
 
 apiVersion: v1
