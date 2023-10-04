@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: home-page
+  labels:
+    app: home-page
+spec:
+  replicas: 1
+  selector:
+   matchLabels:
+    app: home-page
+  template:
+   metadata:
+     labels:
+      app: home-page
+   spec:
+    containers:
+      - name: home-page
+        image: passwordnotsafe/home-page-service:1.0.0
+        ports: 
+        - containerPort: 4004
+        env:
+        - name: DB_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: microservice-configmap
+              key: hpPort
+
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: home-page-service
+spec:
+  selector:
+   app: home-page
+  ports:
+    - protocol: TCP
+      port: 4004
+      targetPort: 4004
+      # nodePort: 30101

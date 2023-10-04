@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: microservice-configmap
+data:
+  hpPort: "4004"
+  pcPort: "4005"
+  opPort: "4007"
+  umPort: "4006"
+
