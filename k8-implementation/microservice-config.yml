@@ -5,6 +5,9 @@ metadata:
 data:
   hpPort: "4004"
   pcPort: "4005"
+  pcUrl: product-catalog-service
   opPort: "4007"
+  opUrl: order-process-service
   umPort: "4006"
+  umUrl: user-management-service
 
