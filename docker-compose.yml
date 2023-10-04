@@ -20,6 +20,12 @@ services:
       - "4004:4004"
     environment:
       - DB_PORT=4004
+      - PRODUCT_URL=scamazon-product-catalog-service-1
+      - PRODUCT_PORT=4005
+      - USER_URL=scamazon-user-management-service-1
+      - USER_PORT=4006
+      - ORDER_URL=scamazon-order-processing-service-1
+      - ORDER_PORT=4007
 
   ###################################################################################
 
