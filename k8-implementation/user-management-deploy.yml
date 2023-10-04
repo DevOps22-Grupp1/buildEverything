@@ -52,8 +52,8 @@ spec:
     app: user-management
   ports:
     - protocol: TCP
-      port: 4005
-      targetPort: 4005
+      port: 4006
+      targetPort: 4006
 
       
     
