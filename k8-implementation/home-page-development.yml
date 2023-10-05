@@ -16,7 +16,7 @@ spec:
    spec:
     containers:
       - name: home-page
-        image: passwordnotsafe/home-page-service:1.0.0
+        image: passwordnotsafe/home-page-service
         imagePullPolicy: Always
         ports: 
         - containerPort: 4004
@@ -55,7 +55,7 @@ spec:
           valueFrom:
             configMapKeyRef:
               name: microservice-configmap
-              key: opPORT
+              key: opPort
 ---
 
 apiVersion: v1
