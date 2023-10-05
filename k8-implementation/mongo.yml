@@ -15,9 +15,6 @@ spec:
         app: mongodb
     spec:
       volumes:
-      #   - name: scripts-volume
-      #     configMap:
-      #       name: my-scripts-configmap
         - name: mongo-persistent-storage
           persistentVolumeClaim:
             claimName: mongo-pv-claim
