@@ -4,10 +4,9 @@ metadata:
   name: microservice-configmap
 data:
   hpPort: "4004"
-  pcPort: "4005"
   pcUrl: product-catalog-service
-  opPort: "4007"
-  opUrl: order-process-service
+  pcPort: "4005"
   umPort: "4006"
   umUrl: user-management-service
-
+  opUrl: order-process-service
+  opPort: "4007"
