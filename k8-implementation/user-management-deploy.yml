@@ -39,7 +39,7 @@ spec:
             valueFrom:
               configMapKeyRef:
                 name: microservice-configmap
-                key: pcPort
+                key: umPort
 
 
 ---
