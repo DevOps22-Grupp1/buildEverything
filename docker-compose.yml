@@ -1,17 +1,17 @@
 version: '3'
 name: "scamazon"
-
+# Here we are creating a network that will be used by all of our services, called my_network. This is the only way that the services can communicate with each other.
 networks:
   my_network:
     driver: bridge
-
+# Creates a folder that will keep the data of the database saved. For each service, a folder is created.
 volumes:
   mongo-product-service-data:
   mongo-user-service-data:
   mongo-order-service-data:
   
 
-
+# This is the configuration for the frontend service. It is the only service that is exposed to the outside world.
 services:
 
   frontend-service:
@@ -22,7 +22,8 @@ services:
       - "4004:4004"
     
       
-  
+# This is the configuration for the backend services. They are not exposed to the outside world.
+# This is storing the logs from our services, about how many clicks, how many times we are asking the databases anything, etc.
   prometheus:
     image: prom/prometheus:latest
     ports:
@@ -31,7 +32,7 @@ services:
       - my_network
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yaml
-  
+# This is a visualization tool for the logs that we are storing in prometheus.  
   grafana:
     image: grafana/grafana
     restart: always
@@ -39,7 +40,9 @@ services:
       - 3005:3000
     networks:
       - my_network
-
+# This is the configuration for the backend services. They are not exposed to the outside world.
+# This is one of the backend services. It is the product service. It is responsible for the products that we are selling.
+# This is just letting the frontend service talk with the product service.
   product-catalog-service:
     image: svenpaj/product-service:1.0.0
     networks:
@@ -49,7 +52,7 @@ services:
     depends_on:
       mongo-1:
         condition: service_healthy
-
+# This server has a database that is storing the products that we are selling.
   mongo-1:
     image: mongo
     restart: always
@@ -68,7 +71,8 @@ services:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
       MONGO_INITDB_DATABASE: allProducts
-
+# This is a tool that is visualizing the database that we are using for the product service.
+# This tool lets us manipulate the database in our browser.
   mongo-express-1:
     image: mongo-express
     restart: always
@@ -83,7 +87,9 @@ services:
       ME_CONFIG_MONGODB_ADMINUSERNAME: root
       ME_CONFIG_MONGODB_ADMINPASSWORD: example
       ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo-1:27017/
-
+# This is the configuration for the backend services. They are not exposed to the outside world.
+# This is one of the backend services. It is the user service. It is responsible for the users we are handling.
+# This is just letting the frontend service talk with the user service.
   user-management-service:
     image: svenpaj/user-service:1.0.0
     networks:
@@ -94,7 +100,7 @@ services:
       mongo-2:
         condition: service_healthy
 
-
+# This server has a database that is storing the users.
   mongo-2:
     image: mongo
     restart: always
@@ -113,7 +119,8 @@ services:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
       MONGO_INITDB_DATABASE: allUsers
-
+# This is a tool that is visualizing the database that we are using for the product service.
+# This tool lets us manipulate the database in our browser.
   mongo-express-2:
     image: mongo-express
     restart: always
@@ -128,7 +135,9 @@ services:
       ME_CONFIG_MONGODB_ADMINUSERNAME: root
       ME_CONFIG_MONGODB_ADMINPASSWORD: example
       ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo-2:27017/
-
+# This is the configuration for the backend services. They are not exposed to the outside world.
+# This is one of the backend services. It is the product service. It is responsible for the orders we handle.
+# This is just letting the frontend service talk with the order service.
   order-processing-service:
     image: svenpaj/order-service:1.0.0
     networks:
@@ -139,7 +148,7 @@ services:
       mongo-3:
         condition: service_healthy
 
-
+# This server has a database that is storing the orders we are processing.
   mongo-3:
     image: mongo
     restart: always
@@ -158,7 +167,8 @@ services:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
       MONGO_INITDB_DATABASE: allOrders
-
+# This is a tool that is visualizing the database that we are using for the product service.
+# This tool lets us manipulate the database in our browser.
   mongo-express-3:
     image: mongo-express
     restart: always
