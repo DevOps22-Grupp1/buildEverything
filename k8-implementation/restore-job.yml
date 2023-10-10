@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: mongo-backup
+  name: mongo-restore
 spec:
   parallelism: 1    
   completions: 1    
@@ -16,10 +16,7 @@ spec:
           persistentVolumeClaim:
             claimName: mongo-dump-pv-claim
       containers:
-      # - name: pi
-      #   image: perl
-      #   command: ["perl",  "-Mbignum=bpi", "-wle", "print bpi(2000)"]
-      - name: mongodump-backup
+      - name: mongodump-restore
         image: passwordnotsafe/mongo-backup
         imagePullPolicy: Always
         env:
@@ -42,17 +39,10 @@ spec:
               secretKeyRef:
                 name: mongodb-secret
                 key: mongo-root-password
-        # volumeMounts:
-        #   - mountPath: "/mongodump"
-        #     name: mongodump-volume
         volumeMounts:
                 - mountPath: "/mongodump"
                   name: mongodump-volume
-        command: ['sh', '-c',"./dump.sh"]
+        command: ['sh', '-c',"./restore.sh"]
       restartPolicy: OnFailure
-      # volumes:
-      #   - name: mongodump-volume
-      #     persistentVolumeClaim:
-      #       claimName: mongodb-backup
-                    
+              
       

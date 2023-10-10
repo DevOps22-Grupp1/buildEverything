@@ -4,6 +4,8 @@ metadata:
   name: seed-database
 spec:
   template:
+    metadata:
+      name: seed-database-test
     spec:
       containers:
       - name: seed-container
@@ -27,7 +29,5 @@ spec:
                 key: mongo-root-password
           - name: DB_PORT
             value: "27017"
-          
-        # Lägg till eventuella miljövariabler eller volymer om de behövs
       restartPolicy: Never
   backoffLimit: 4

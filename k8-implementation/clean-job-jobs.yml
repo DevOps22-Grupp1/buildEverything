@@ -1,17 +1,53 @@
 apiVersion: batch/v1
-kind: CronJob
+kind: Job
 metadata:
   name: cleanup
 spec:
-  schedule: "*/30 * * * *"
+  schedule: "*/5 * * * *"
+  startingDeadlineSeconds: 60
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 2
   jobTemplate:
-    successfulJobsHistoryLimit: 1
-    failedJobsHistoryLimit: 1
     spec:
       template:
         spec:
           containers:
-          - name: kubectl-runner
-            image: wernight/kubectl
-            command: ["sh", "-c", "kubectl get jobs | awk '$4 ~ /[2-9]d$/ || $3 ~ 1' | awk '{print $1}' | xargs kubectl delete job"]
-          restartPolicy: Never
+            - name: mongodump-backup
+              image: passwordnotsafe/mongo-backup
+              imagePullPolicy: Always
+              env:
+                - name: DB_NAME
+                  valueFrom:
+                    configMapKeyRef:
+                      name: mongodb-configmap
+                      key: database_url
+                - name: MONGOD_PORT
+                  value: "27017"
+                - name: MONGO_URL
+                  value: "mongodb://"
+                - name: DB_USERNAME
+                  valueFrom:
+                    secretKeyRef:
+                      name: mongodb-secret
+                      key: mongo-root-username
+                - name: DB_PASSWORD
+                  value: "password"
+                  valueFrom:
+                    secretKeyRef:
+                      name: mongodb-secret
+                      key: mongo-root-password
+              volumeMounts:
+                - mountPath: "/mongodump"
+                  name: mongo-pv-claim
+
+              restartPolicy: OnFailure    
+              volumes:
+            - name: mongodump-volume
+              persistentVolumeClaim:
+                claimName: mongo-pv-claim
+
+          # - name: kubectl-runner
+          #   image: wernight/kubectl
+          #   command: ["sh", "-c", "kubectl get jobs | awk '$4 ~ /[2-9]d$/ || $3 ~ 1' | awk '{print $1}' | xargs kubectl delete job"]
+          # restartPolicy: Never

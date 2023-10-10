@@ -1,0 +1,23 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: mongodb-backup
+  labels:
+    app: mongo-dump
+spec:
+  backoffLimit: 5
+  activeDeadlineSeconds: 10000
+  template:
+    spec:
+      containers:
+      - name: mongodump
+        image: mongo
+        command: ["mongodump","--host","mongodb-service:27017"]
+        volumeMounts:
+          - mountPath: dump
+            name: mongo-dumps
+      volumes:
+      - name: mongo-dumps
+        persistentVolumeClaim:
+          claimName: mongo-dump-pv-claim
+      restartPolicy: OnFailure
