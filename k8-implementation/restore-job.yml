@@ -20,6 +20,8 @@ spec:
         image: passwordnotsafe/mongo-backup
         imagePullPolicy: Always
         env:
+          - name: DB_NAME
+            value: "dumpen"
           - name: MONGOD_HOST
             valueFrom:
               configMapKeyRef:
