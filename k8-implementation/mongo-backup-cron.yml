@@ -1,0 +1,48 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: create-a-mongo-db-dump
+spec:
+  schedule: "*/5 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          volumes:
+            - name: mongodump-volume
+              persistentVolumeClaim:
+                claimName: mongo-dump-pv-claim
+          containers:
+            - name: mongodump-backup
+              image: passwordnotsafe/mongo-backup
+              imagePullPolicy: Always
+              env:
+                - name: DB_NAME
+                  value: "dumpen"
+                - name: MONGOD_HOST
+                  valueFrom:
+                    configMapKeyRef:
+                      name: mongodb-configmap
+                      key: database_url
+                - name: MONGOD_PORT
+                  value: "27017"
+                - name: MONGODB_URI
+                  value: "mongodb://"
+                - name: DB_USERNAME
+                  valueFrom:
+                    secretKeyRef:
+                      name: mongodb-secret
+                      key: mongo-root-username
+                - name: DB_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: mongodb-secret
+                      key: mongo-root-password
+            # volumeMounts:
+            #   - mountPath: "/mongodump"
+            #     name: mongodump-volume
+              volumeMounts:
+                - mountPath: "/mongodump"
+                  name: mongodump-volume
+              command: ['sh', '-c',"./dump.sh"]
+          restartPolicy: OnFailure
