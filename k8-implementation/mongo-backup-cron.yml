@@ -3,7 +3,7 @@ kind: CronJob
 metadata:
   name: create-a-mongo-db-dump
 spec:
-  schedule: "*/5 * * * *"
+  schedule: "*/10 * * * *"
   jobTemplate:
     spec:
       template:
@@ -18,7 +18,7 @@ spec:
               imagePullPolicy: Always
               env:
                 - name: DB_NAME
-                  value: "dumpen"
+                  value: "data_handling"
                 - name: MONGOD_HOST
                   valueFrom:
                     configMapKeyRef:
@@ -38,9 +38,6 @@ spec:
                     secretKeyRef:
                       name: mongodb-secret
                       key: mongo-root-password
-            # volumeMounts:
-            #   - mountPath: "/mongodump"
-            #     name: mongodump-volume
               volumeMounts:
                 - mountPath: "/mongodump"
                   name: mongodump-volume
