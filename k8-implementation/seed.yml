@@ -3,6 +3,7 @@ kind: Job
 metadata:
   name: seed-database
 spec:
+  ttlSecondsAfterFinished: 50
   template:
     metadata:
       name: seed-database-test

@@ -5,7 +5,8 @@ metadata:
 spec:
   parallelism: 1    
   completions: 1    
-  activeDeadlineSeconds: 1800 
+  activeDeadlineSeconds: 1800
+  ttlSecondsAfterFinished: 50
   backoffLimit: 6   
   template:         
     metadata:
@@ -20,8 +21,8 @@ spec:
         image: passwordnotsafe/mongo-backup
         imagePullPolicy: Always
         env:
-          - name: DB_NAME
-            value: "dumpen"
+          - name: FILE
+            value: "data_handling_9"
           - name: MONGOD_HOST
             valueFrom:
               configMapKeyRef:
