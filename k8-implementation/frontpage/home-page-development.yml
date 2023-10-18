@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: home-page
+  # namespace: scamazon
   labels:
     app: home-page
 spec:
@@ -65,8 +66,11 @@ metadata:
 spec:
   selector:
    app: home-page
+  type: NodePort
   ports:
-    - protocol: TCP
+    - nodePort: 31317
       port: 4004
+      protocol: TCP
       targetPort: 4004
-      # nodePort: 30101
+      
+      

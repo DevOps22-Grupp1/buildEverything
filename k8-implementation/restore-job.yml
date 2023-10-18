@@ -22,7 +22,7 @@ spec:
         imagePullPolicy: Always
         env:
           - name: FILE
-            value: "data_handling_9"
+            value: "data_handling_12"
           - name: MONGOD_HOST
             valueFrom:
               configMapKeyRef:

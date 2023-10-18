@@ -3,7 +3,7 @@ kind: CronJob
 metadata:
   name: create-a-mongo-db-dump
 spec:
-  schedule: "*/10 * * * *"
+  schedule: "*/30 * * * *"
   jobTemplate:
     spec:
       template:

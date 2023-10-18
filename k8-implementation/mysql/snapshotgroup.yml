@@ -1,0 +1,13 @@
+apiVersion: gemini.fairwinds.com/v1
+kind: SnapshotGroup
+metadata:
+  name: mysql-backup
+spec:
+  persistentVolumeClaim:
+    claimName: mysql-pv-claim
+  schedule:
+    - every: "10 minutes"
+      keep: 3
+  template:
+    spec:
+      volumeSnapshotClassName: csi-hostpath-snapclass
