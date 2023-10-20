@@ -5,6 +5,6 @@ metadata:
   annotations:
     snapshot.storage.kubernetes.io/is-default-class: "true"
 driver: hostpath.csi.k8s.io # replace it with your csi drivers
-deletionPolicy: Delete
+deletionPolicy: Retain
 parameters:
   type: snap

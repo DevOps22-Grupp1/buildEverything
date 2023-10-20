@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: adminer
+  labels:
+    app: adminer
+spec:
+  selector:
+    matchLabels:
+      app: adminer
+  template:
+    metadata:
+      labels:
+        app: adminer
+    spec:
+      containers:
+        - name: adminer
+          image: adminer:4.8.1
+          ports:
+            - containerPort: 8080
+          env:
+            - name: ADMINER_DESIGN
+              value: "pappu687"
+            - name: ADMINER_DEFAULT_DB_DRIVER	
+              value: "mysql"
+            - name: ADMINER_DEFAULT_DB_HOST
+              value: "mysql-service"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: adminer-svc
+spec:
+  selector:
+    app: adminer
+  type: NodePort  
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+      nodePort: 30011

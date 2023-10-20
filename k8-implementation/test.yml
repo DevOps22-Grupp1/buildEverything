@@ -1,7 +1,7 @@
 apiVersion: gemini.fairwinds.com/v1
 kind: SnapshotGroup
 metadata:
-  name: test-volume
+  name: mongo-backup
 spec:
   persistentVolumeClaim:
     claimName: mongo-pv-claim

@@ -3,5 +3,5 @@ kind: VolumeSnapshotClass
 metadata:
   name: csi-hostpath-snapclass
 driver: hostpath.csi.k8s.io
-deletionPolicy: Delete
+deletionPolicy: Retain
 parameters:

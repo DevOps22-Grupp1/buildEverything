@@ -30,6 +30,16 @@ spec:
             secretKeyRef:
               name: mysql-secret
               key: mysql-root-password
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: password
+        - name: MYSQL_USER
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: username
         ports:
         - containerPort: 3306
           name: mysql
@@ -41,7 +51,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: mysql-development
+  name: mysql-service
 spec:
   selector:
     app: mysql
