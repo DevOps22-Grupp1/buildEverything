@@ -2,6 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: microservice-configmap
+  namespace: microservice
 data:
   hpPort: "4004"
   pcUrl: product-catalog-service
