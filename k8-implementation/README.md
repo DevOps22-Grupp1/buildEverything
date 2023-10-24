@@ -21,7 +21,7 @@
     (watch flag is for follow) **
 12. kubectl apply -f seed.yml
 13. kubectl apply -f mongo-express-deployment.yml
-14. kubectl apply -f new name for the snapshotgroup file (test.yml)
+14. kubectl apply -f mongo-snapshotgroup.yml
 15. velero uninstall && velero install --provider aws --plugins velero/velero-plugin-for-aws:v1.2.1 --bucket velero --secret-file ./credentials-velero --use-volume-snapshots=true --backup-location-config region=minio,s3ForcePathStyle="true",s3Url=http://172.16.135.202:9000 <-- installation for velero backup (check so velero is installed before)
 16. velero schedule create hourlysched --schedule="_/60 _ \* \* \*" <-- create a schedule ( every hour)
 17. velero backup create backup --include-namespaces default --schedule="_/60 _ \* \* \*" <-- create a backup job from the schedule
