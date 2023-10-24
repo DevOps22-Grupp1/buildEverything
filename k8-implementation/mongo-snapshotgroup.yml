@@ -6,7 +6,7 @@ spec:
   persistentVolumeClaim:
     claimName: mongo-pv-claim
   schedule:
-    - every: "10 minutes"
+    - every: "30 minutes"
       keep: 3
   template:
     spec:
