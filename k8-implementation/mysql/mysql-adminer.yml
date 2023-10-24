@@ -1,17 +1,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: adminer
+  name: mysql-adminer
+  namespace: mysql
   labels:
-    app: adminer
+    app: mysql-adminer
 spec:
   selector:
     matchLabels:
-      app: adminer
+      app: mysql-adminer
   template:
     metadata:
       labels:
-        app: adminer
+        app: mysql-adminer
     spec:
       containers:
         - name: adminer
@@ -30,10 +31,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: adminer-svc
+  name: mysql-adminer-svc
+  namespace: mysql
 spec:
   selector:
-    app: adminer
+    app: mysql-adminer
   type: NodePort  
   ports:
     - protocol: TCP

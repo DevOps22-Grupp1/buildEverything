@@ -2,6 +2,7 @@ apiVersion: gemini.fairwinds.com/v1
 kind: SnapshotGroup
 metadata:
   name: mysql-backup
+  namespace: mysql
 spec:
   persistentVolumeClaim:
     claimName: mysql-pv-claim

@@ -2,6 +2,7 @@ apiVersion: snapshot.storage.k8s.io/v1
 kind: VolumeSnapshot
 metadata:
   name: test-csi-volume-snapshot
+  namespace: mysql
 spec:
   volumeSnapshotClassName: volume-snapshot-class #change it with your volume snapshot class name
   source:
