@@ -25,6 +25,7 @@
 15. velero uninstall && velero install --provider aws --plugins velero/velero-plugin-for-aws:v1.2.1 --bucket velero --secret-file ./credentials-velero --use-volume-snapshots=true --backup-location-config region=minio,s3ForcePathStyle="true",s3Url=http://172.16.135.202:9000 <-- installation for velero backup (check so velero is installed before)
 16. velero schedule create hourlysched --schedule="_/60 _ \* \* \*" <-- create a schedule ( every hour)
 17. velero backup create backup --include-namespaces default --schedule="_/60 _ \* \* \*" <-- create a backup job from the schedule
+    **handling microservice installation**
 18. kubectl apply -f microservice-config.yml
 19. kubectl apply -f order-processing-deployment.yml
 20. kubectl apply -f product-catalog-deployment.yml
