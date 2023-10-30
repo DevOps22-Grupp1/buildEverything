@@ -7,8 +7,8 @@ spec:
   persistentVolumeClaim:
     claimName: mysql-pv-claim
   schedule:
-    - every: "10 minutes"
-      keep: 3
+    - every: 10 minutes
+      keep: 
   template:
     spec:
       volumeSnapshotClassName: csi-hostpath-snapclass

@@ -6,8 +6,8 @@ spec:
   persistentVolumeClaim:
     claimName: mongo-pv-claim
   schedule:
-    - every: "30 minutes"
-      keep: 3
+    - every: 15 minutes
+      keep: 4
   template:
     spec:
       volumeSnapshotClassName: csi-hostpath-snapclass
