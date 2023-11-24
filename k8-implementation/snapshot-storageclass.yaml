@@ -1,9 +1,8 @@
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
+reclaimPolicy: Retain
 metadata:
   name: csi-hostpath-snapclass
 provisioner: hostpath.csi.k8s.io
-volumeBindingMode: WaitForFirstConsumer
-allowVolumeExpansion: true
 parameters:
   snapshotter: hostpath.csi.k8s.io

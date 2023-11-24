@@ -1,11 +1,10 @@
 apiVersion: gemini.fairwinds.com/v1
 kind: SnapshotGroup
 metadata:
-  name: mysql-backup
-  namespace: mysql
+  name: wp-backup
 spec:
   persistentVolumeClaim:
-    claimName: mysql-pv-claim
+    claimName: wp-pv-claim
   schedule:
     - every: 15 minutes
       keep: 4
