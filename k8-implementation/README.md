@@ -14,6 +14,8 @@
 ### Install gemeni ()
 
 - kubectl create ns gemini
+<!-- - to check if the helm needs to update    -->
+- helm repo update
 - helm install gemini fairwinds-stable/gemini --namespace gemini
 
 ## There are (x) applications that
@@ -34,7 +36,7 @@
 
 <!-- - kubectl apply -f mongo-pv.yml -->
 
-- kubectl apply -f mongo-pvc.yml
+- kubectl apply -f config/mongo-config.yml
 - kubectl apply -f mongo-deployment.yml
 
   wait for the mongo pod is running, to check that the pod is running use:
@@ -136,3 +138,11 @@
 21. kubectl apply -f frontpage/user-management-deploy.yml
 22. kubectl apply -f frontpage/home-page-development.yml
 23. To see the page: k get service ( to find the service for home page) then minikube service < the home page service > it should be home-page-service
+
+# Use make files:
+
+## install make:
+
+- [https://stackoverflow.com/questions/32127524/how-to-install-and-use-make-in-windows] (on windows)
+- [https://stackoverflow.com/questions/10265742/how-to-install-make-and-gcc-on-a-mac] (on mac)
+- [https://www.geeksforgeeks.org/how-to-install-make-on-ubuntu/] (on linux)
