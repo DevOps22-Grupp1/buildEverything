@@ -6,6 +6,9 @@ start-default:
 start-docker:
 	minikube start --driver=docker
 
+stop:
+	minikube stop
+
 delete: 
 	minikube delete 
 
