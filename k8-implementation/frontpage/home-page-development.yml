@@ -65,9 +65,7 @@ metadata:
 spec:
   selector:
     app: home-page
-  type: ClusterIP
   ports:
-    - nodePort: 31317
-      port: 4004
-      protocol: TCP
-      targetPort: 4004
+    - protocol: TCP
+      port: 4007
+      targetPort: 4007
