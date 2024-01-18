@@ -65,7 +65,7 @@ metadata:
 spec:
   selector:
     app: home-page
-  type: NodePort
+  type: ClusterIP
   ports:
     - nodePort: 31317
       port: 4004
