@@ -34,7 +34,7 @@ services:
     ports:
       - "4004:4004"
     environment:
-      - DB_PORT=4004
+      - SERVER_PORT=4004
       - PRODUCT_URL=scamazon-product-catalog-service-1
       - PRODUCT_PORT=4005
       - USER_URL=scamazon-user-management-service-1
@@ -54,8 +54,9 @@ services:
       mongo-order-processing-service:
         condition: service_healthy
     environment:
+      - SERVER_PORT=4007
       - DB_HOST=mongo-order-processing-service
-      - DB_PORT=4007
+      - DB_PORT=27017
       - DB_USERNAME=root
       - DB_PASSWORD=example
 
@@ -154,10 +155,11 @@ services:
       mongo-user-management-service:
         condition: service_healthy
     environment:
-      - DB_HOST=mongo-user-management-service
-      - DB_PORT=4006
+      - SERVER_PORT=4006
       - DB_USERNAME=root
       - DB_PASSWORD=example
+      - DB_HOST=mongo-user-management-service
+      - DB_PORT=27017
 
   mongo-user-management-service:
     image: mongo
