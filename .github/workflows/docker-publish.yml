@@ -16,32 +16,11 @@ jobs:
       order-processing-service:
         image: passwordnotsafe/order-processing-service:master
 
-      mongo-order-processing-service:
-        image: mongo
-        options: --health-cmd="health-check-command-for-service3" --health-interval=10s --health-timeout=5s --health-retries=3
-
-      mongo-express-order-processing-service:
-        image: mongo-express
-
       product-catalog-service:
         image: passwordnotsafe/produkt-catalog-service:master
 
-      mongo-product-catalog-service:
-        image: mongo
-        options: --health-cmd="health-check-command-for-service3" --health-interval=10s --health-timeout=5s --health-retries=3
-
-      mongo-express-product-catalog-service:
-        image: mongo-express
-
       user-management-service:
         image: passwordnotsafe/user-management-service
-
-      mongo-user-management-service:
-        image: mongo
-        options: --health-cmd="health-check-command-for-service3" --health-interval=10s --health-timeout=5s --health-retries=3
-
-      mongo-express-user-management-service:
-        image: mongo-express
 
     steps:
       - name: Checkout code
