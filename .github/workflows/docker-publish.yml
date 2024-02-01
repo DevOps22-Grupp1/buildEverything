@@ -1,67 +1,62 @@
-name: Docker Build, Push and Cypress Tests
+name: CI
 
 on:
   push:
     branches:
-      - 6-cypress-testing-workflows
+      - main
 
 jobs:
-  docker:
-    timeout-minutes: 10
+  test:
     runs-on: ubuntu-latest
+
+    services:
+      home-page-service:
+        image: passwordnotsafe/home-page-service
+
+      order-processing-service:
+        image: passwordnotsafe/order-processing-service:master
+
+      mongo-order-processing-service:
+        image: mongo
+        options: --health-cmd="health-check-command-for-service3" --health-interval=10s --health-timeout=5s --health-retries=3
+
+      mongo-express-order-processing-service:
+        image: mongo-express
+
+      product-catalog-service:
+        image: passwordnotsafe/produkt-catalog-service:master
+
+      mongo-product-catalog-service:
+        image: mongo
+        options: --health-cmd="health-check-command-for-service3" --health-interval=10s --health-timeout=5s --health-retries=3
+
+      mongo-express-product-catalog-service:
+        image: mongo-express
+
+      user-management-service:
+        image: passwordnotsafe/user-management-service
+
+      mongo-user-management-service:
+        image: mongo
+        options: --health-cmd="health-check-command-for-service3" --health-interval=10s --health-timeout=5s --health-retries=3
+
+      mongo-express-user-management-service:
+        image: mongo-express
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Docker Login
-        env:
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-        run: |
-          echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
-      
-      - name: Start containers
-        run: docker-compose -f "docker-compose.yml" up -d --build
+      - name: Start Docker Compose
+        run: docker-compose -f ../docker-compose.yml up -d
 
-      - name: Build Docker Image for home-page-service
-        run: |
-          docker build -t passwordnotsafe/home-page-service ./backend
-
-      - name: Push Docker Image for home-page-service
-        run: |
-          docker push passwordnotsafe/home-page-service
-
-      - name: Build Docker Image for seed-data
-        run: |
-          docker build -t passwordnotsafe/seed-data ./script
-
-      - name: Push Docker Image for seed-data
-        run: |
-          docker push passwordnotsafe/seed-data
-
-      - name: Build Docker Image for mongo-backup
-        run: |
-          docker build -t passwordnotsafe/mongo-backup ./script/backup
-
-      - name: Push Docker Image for mongo-backup
-        run: |
-          docker push passwordnotsafe/mongo-backup
-         
-  cypress:
-    needs: docker
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '14'
-
-      - name: Install dependencies
-        run: |
-          npm install
-    
       - name: Run Cypress tests
         run: |
+          # Install Cypress dependencies if needed
+          npm install
+
+          # Run Cypress tests
           npx cypress run
+
+      - name: Stop Docker Compose
+        run: docker-compose -f ../docker-compose.yml down
