@@ -10,6 +10,9 @@ jobs:
     runs-on: ubuntu-latest
 
     services:
+      mongo-product-catalog-service:
+        image: mongo
+        options: --health-cmd="health-check-command-for-service4" --health-interval=10s --health-timeout=5s --health-retries=3
       home-page-service:
         image: passwordnotsafe/home-page-service
 
@@ -18,10 +21,6 @@ jobs:
 
       product-catalog-service:
         image: passwordnotsafe/produkt-catalog-service:master
-
-      mongo-product-catalog-service:
-        image: mongo
-        options: --health-cmd="health-check-command-for-service4" --health-interval=10s --health-timeout=5s --health-retries=3
 
       user-management-service:
         image: passwordnotsafe/user-management-service
