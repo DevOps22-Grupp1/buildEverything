@@ -1,0 +1,23 @@
+{
+  "name": "buildeverything",
+  "version": "1.0.0",
+  "description": "**Medlemmar i grupp 1 med github alias:** \r - Jarl | alias: webcrunch\r - Max | alias: Svenpaj\r - Dennis | alias: DennisNevback\r - Zohreh | alias: Zoritta\r - Harisha | alias: Harisha7\r - Simon | alias: zompes",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DevOps22-Grupp1/buildEverything.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/DevOps22-Grupp1/buildEverything/issues"
+  },
+  "homepage": "https://github.com/DevOps22-Grupp1/buildEverything#readme",
+  "devDependencies": {
+    "cypress": "^13.6.4"
+  }
+}
