@@ -3,7 +3,7 @@ name: CI
 on:
   push:
     branches:
-      - main
+      - 6-cypress-testing-workflows
 
 jobs:
   test:
