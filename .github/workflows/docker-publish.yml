@@ -12,6 +12,7 @@ jobs:
     services:
       mongo-product-catalog-service:
         image: mongo
+        options: --health-cmd="health-check-command-for-service4" --health-interval=15s --health-timeout=10s --health-retries=5
         
       home-page-service:
         image: passwordnotsafe/home-page-service
