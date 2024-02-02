@@ -10,33 +10,38 @@ jobs:
     runs-on: ubuntu-latest
 
     services:
-      docker:
-        image: docker:20.10.8
+        
+      home-page-service:
+        image: passwordnotsafe/home-page-service
 
-    
+      order-processing-service:
+        image: passwordnotsafe/order-processing-service:master
+
+      product-catalog-service:
+        image: passwordnotsafe/produkt-catalog-service:master
+      
+      mongo-product-catalog-service:
+        image: mongo
+        options: --health-cmd="health-check-command-for-service3" --health-interval=10s --health-timeout=5s --health-retries=3
+  
+      mongo-express-product-catalog-service:
+          image: mongo-express
+          
+      user-management-service:
+        image: passwordnotsafe/user-management-service
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Build and start services
-        run: |
-          docker build -t passwordnotsafe/home-page-service -f Dockerfile_home-page-service .
-          docker build -t passwordnotsafe/order-processing-service -f Dockerfile_order-processing-service .
-          docker build -t passwordnotsafe/produkt-catalog-service -f Dockerfile_produkt-catalog-service .
-          docker build -t passwordnotsafe/user-management-service -f Dockerfile_user-management-service .
-          
-          docker-compose -f docker-compose.yml up -d
-
-      - name: Wait for services to be healthy
-        run: docker-compose -f docker-compose.yml exec -T home-page-service ./wait-for.sh order-processing-service:4007 produkt-catalog-service:4005 user-management-service:4006
+      - name: Start Docker Compose
+        run: docker compose -f docker-compose.yml up -d
 
       - name: Run Cypress tests
         run: |
           # Install Cypress dependencies if needed
           npm install
-
           # Run Cypress tests
           npx cypress run
-
-      - name: Stop services
-        run: docker-compose -f docker-compose.yml down
+      - name: Stop Docker Compose
+        run: docker compose -f docker-compose.yml down
