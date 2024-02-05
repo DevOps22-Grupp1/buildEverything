@@ -19,13 +19,6 @@ jobs:
 
       product-catalog-service:
         image: passwordnotsafe/produkt-catalog-service:master
-      
-      mongo-product-catalog-service:
-        image: mongo
-        options: --health-cmd="health-check-command-for-service3" --health-interval=10s --health-timeout=5s --health-retries=3
-  
-      mongo-express-product-catalog-service:
-          image: mongo-express
           
       user-management-service:
         image: passwordnotsafe/user-management-service
