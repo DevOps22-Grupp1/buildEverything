@@ -10,7 +10,6 @@ jobs:
     runs-on: ubuntu-latest
 
     services:
-        
       home-page-service:
         image: passwordnotsafe/home-page-service
 
@@ -19,7 +18,7 @@ jobs:
 
       product-catalog-service:
         image: passwordnotsafe/produkt-catalog-service:master
-          
+
       user-management-service:
         image: passwordnotsafe/user-management-service
 
@@ -35,6 +34,6 @@ jobs:
           # Install Cypress dependencies if needed
           npm install
           # Run Cypress tests
-          npx cypress run
+          npx cypress run --browser chrome
       - name: Stop Docker Compose
         run: docker compose -f docker-compose.yml down

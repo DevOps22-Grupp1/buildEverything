@@ -1,8 +1,10 @@
 describe('Product Page Test', () => {
-  it('should display Products on the page after clicking Products link', () => {
-    // Visit the base URL
+	beforeEach(() => {
+    // Visit the base URL before each test
     cy.visit('/');
+  });
 
+  it('should display Products on the page after clicking Products link', () => {
     // Clicking on the element using cy.contains for Products link
     cy.contains('a', 'Products').click();
 
