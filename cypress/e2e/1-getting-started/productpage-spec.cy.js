@@ -1,6 +1,6 @@
 describe('Navigation Tests', () => {
   it('should return a 200 status code and contain "Products"', () => {
-    cy.request('/')
+    cy.request('/products')
       .its('status')
       .should('equal', 200);
 
