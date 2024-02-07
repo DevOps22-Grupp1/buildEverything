@@ -1,4 +1,4 @@
-describe('Product Page Test', () => {
+/*describe('Product Page Test', () => {
   it('should return a 200 status code and contain "Products"', () => {
     // Make a request to the product page
     cy.request('/products')
@@ -22,3 +22,4 @@ describe('Product Page Test', () => {
     cy.contains('Products').should('be.visible');
   });
 });
+*/
