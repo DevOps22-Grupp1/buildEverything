@@ -8,25 +8,7 @@ describe('Navigation Tests', () => {
       .its('body')
       .should('include', 'Products');  
   }); 
-});
-
-
-
-
-
-
-/*describe('Navigation Tests', () => {
-  it('should return a 200 status code and contain "Products"', () => {
-    cy.request('/')
-      .its('status')
-      .should('equal', 200);
-
-    cy.request('/products')
-      .its('body')
-      .should('include', 'Products');  
-
-  }); 
-});  */
+});  
 
 
 
