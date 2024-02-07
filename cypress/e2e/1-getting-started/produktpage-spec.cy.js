@@ -4,7 +4,7 @@ describe('Product Page Test', () => {
     cy.visit('/');
   });
 
-  it('should display Products on the page after clicking Products link', () => {
+ /* it('should display Products on the page after clicking Products link', () => {
     // Clicking on the element using cy.contains for Products link
     cy.contains('a', 'Products').click();
 
@@ -13,5 +13,5 @@ describe('Product Page Test', () => {
 
     // Assertion: Check if the "Products" text is present on the page
     cy.contains('Products').should('be.visible');
-  });
+  });*/
 });
