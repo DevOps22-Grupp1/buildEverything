@@ -10,82 +10,31 @@ jobs:
     runs-on: ubuntu-latest
 
     services:
+        
       home-page-service:
         image: passwordnotsafe/home-page-service
 
       order-processing-service:
         image: passwordnotsafe/order-processing-service:master
 
-      user-management-service:
-        image: passwordnotsafe/user-management-service
-
       product-catalog-service:
         image: passwordnotsafe/produkt-catalog-service:master
-        networks:
-          - my_network
-        ports:
-          - 4005:4005
-        depends_on:
-          mongo-product-catalog-service:
-            condition: service_healthy
-        environment:
-          - DB_HOST=mongo-product-catalog-service
-          - DB_USERNAME=root
-          - DB_PASSWORD=example
-          - DB_PORT=27017
-          - SERVER_PORT=4005
-
-      mongo-product-catalog-service:
-        image: mongo
-        restart: always
-        networks:
-          - my_network
-        volumes:
-          - ./init/product/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
-          - ./data-produkt-catalog-service:/data/db
-        healthcheck:
-          test: echo 'mongo-product-catalog-service.runCommand("ping").ok' | mongosh mongo-product-catalog-service:27017 --quiet
-          interval: 5s
-          timeout: 5s
-          retries: 20
-          start_period: 200s
-        environment:
-          MONGO_INITDB_ROOT_USERNAME: root
-          MONGO_INITDB_ROOT_PASSWORD: example
-          MONGO_INITDB_DATABASE: allProducts
-
-      mongo-express-product-catalog-service:
-        image: mongo-express
-        restart: always
-        ports:
-          - 8082:8081
-        networks:
-          - my_network
-        depends_on:
-          mongo-product-catalog-service:
-            condition: service_healthy
-        environment:
-          ME_CONFIG_MONGODB_ADMINUSERNAME: root
-          ME_CONFIG_MONGODB_ADMINPASSWORD: example
-          ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo-product-catalog-service:27017/
-
-    networks:
-      my_network:
-        driver: bridge
+          
+      user-management-service:
+        image: passwordnotsafe/user-management-service
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
       - name: Start Docker Compose
-        run: |
-          docker-compose up -d
+        run: docker compose -f docker-compose.yml up -d
 
-      - name: Install dependencies and run Cypress tests
+      - name: Run Cypress tests
         run: |
+          # Install Cypress dependencies if needed
           npm install
+          # Run Cypress tests
           npx cypress run
-
       - name: Stop Docker Compose
-        run: |
-          docker-compose down
+        run: docker compose -f docker-compose.yml down
