@@ -1,5 +1,6 @@
 name: "scamazon"
 
+
 on:
   push:
     branches:
