@@ -12,10 +12,10 @@ jobs:
     services:
       home-page-service:
         image: passwordnotsafe/home-page-service
-
+       
       order-processing-service:
         image: passwordnotsafe/order-processing-service:master
-
+        
       product-catalog-service:
         image: passwordnotsafe/produkt-catalog-service:master
 
