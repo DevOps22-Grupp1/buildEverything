@@ -9,4 +9,4 @@ jobs:
       - name: Build the stack
         run: docker-compose -f docker-test.yml up  -d
       - name: Check the docker ps
-        run: docker-compose ps
+        run: docker logs buildeverything_home-page-service_1
