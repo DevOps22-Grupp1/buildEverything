@@ -45,7 +45,7 @@ services:
   ###################################################################################
 
   order-processing-service:
-    image: passwordnotsafe/order-processing-service:master
+    image: passwordnotsafe/order-processing-service
     ports:
       - 4007:4007
     networks:
@@ -96,7 +96,7 @@ services:
   ##########################################################################################
 
   product-catalog-service:
-    image: passwordnotsafe/produkt-catalog-service:master
+    image: passwordnotsafe/produkt-catalog-service
     networks:
       - my_network
     ports:
