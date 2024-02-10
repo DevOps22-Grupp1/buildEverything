@@ -17,40 +17,40 @@ services:
 
   ###################################################################################
 
-  # order-processing-service:
-  #   image: passwordnotsafe/order-processing-service
-  #   ports:
-  #     - 4007:4007
-  #   networks:
-  #     - my_network
-  #   depends_on:
-  #     mongo-order-processing-service:
-  #       condition: service_healthy
-  #   environment:
-  #     - SERVER_PORT=4007
-  #     - DB_HOST=mongo-order-processing-service
-  #     - DB_PORT=27017
-  #     - DB_USERNAME=root
-  #     - DB_PASSWORD=example
+  order-processing-service:
+    image: passwordnotsafe/order-processing-service
+    ports:
+      - 4007:4007
+    networks:
+      - my_network
+    depends_on:
+      mongo-order-processing-service:
+        condition: service_healthy
+    environment:
+      - SERVER_PORT=4007
+      - DB_HOST=mongo-order-processing-service
+      - DB_PORT=27017
+      - DB_USERNAME=root
+      - DB_PASSWORD=example
 
-  # mongo-order-processing-service:
-  #   image: mongo
-  #   restart: always
-  #   networks:
-  #     - my_network
-  #   volumes:
-  #     - ./init/order/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
-  #   #   - ./data-order-processing-service:/data/db
-  #   healthcheck:
-  #     test: echo 'mongo-order-processing-service.runCommand("ping").ok' | mongosh mongo-order-processing-service:27017 --quiet
-  #     interval: 5s
-  #     timeout: 5s
-  #     retries: 20
-  #     start_period: 200s
-  #   environment:
-  #     MONGO_INITDB_ROOT_USERNAME: root
-  #     MONGO_INITDB_ROOT_PASSWORD: example
-  #     MONGO_INITDB_DATABASE: allOrders
+  mongo-order-processing-service:
+    image: mongo
+    restart: always
+    networks:
+      - my_network
+    volumes:
+      - ./init/order/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+    #   - ./data-order-processing-service:/data/db
+    healthcheck:
+      test: echo 'mongo-order-processing-service.runCommand("ping").ok' | mongosh mongo-order-processing-service:27017 --quiet
+      interval: 50s
+      timeout: 50s
+      retries: 20
+      start_period: 600s
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+      MONGO_INITDB_DATABASE: allOrders
 
   # mongo-express-order-processing-service:
   #   image: mongo-express
