@@ -1,33 +1,6 @@
 version: "3"
-name: "scamazon"
-
-networks:
-  my_network:
-    driver: bridge
-
-# volumes:
-#   mongo-data-home-page-service:
-#   mongo-data-order-processing-service:
-#   mongo-produkt-catalog-service:
-
 services:
-  # test for seed script (Dont need for docker compose)
-  # build:
-  #   image: seed
-  #   container_name: seed
-  #   networks:
-  #     - my_network
-  #   depends_on:
-  #     mongo-order-processing-service:
-  #       condition: service_healthy
-  #   environment:
-  #     - DB_HOST=mongo-order-processing-service
-  #     - DB_PORT=27017
-  #     - DB_USERNAME=root
-  #     - DB_PASSWORD=example
-
   home-page-service:
-    # build: https://github.com/DevOps22-Grupp1/home-page-service#prometheus-fix
     image: passwordnotsafe/home-page-service
     networks:
       - my_network
