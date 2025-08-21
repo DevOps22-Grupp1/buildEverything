@@ -1,3 +1,4 @@
+db = db.getSiblingDB('allOrders');
 db.createUser({
     user: "order_admin",
     pwd: "password",
@@ -10,6 +11,7 @@ db.createUser({
 });
 
 db.createCollection("orders");
+db.createCollection("cart");
 db.cart.insertMany([
     {
         id: 1,
@@ -58,4 +60,3 @@ db.cart.insertMany([
         productid: 2
     },
 ])
-db.orders.insertMany();

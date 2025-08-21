@@ -6,10 +6,12 @@ yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
 .pnpm-debug.log*
+mongo-data-home-page-service
 data-order-processing-service
 data-user-management-service
 data-produkt-catalog-service
-
+data-service
+mongo-data-home-page-service
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
@@ -131,3 +133,4 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+mongo-data-home-page-service/WiredTigerHS.wt

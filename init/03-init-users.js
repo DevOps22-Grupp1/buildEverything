@@ -1,3 +1,4 @@
+db = db.getSiblingDB('allUsers');
 db.createUser({
     user: "sudo_admin",
     pwd: "password",
