@@ -1,5 +1,8 @@
 name: docker-compose-actions-workflow
-on: push
+# Not on the deploy branch: docker-compose v1 is gone from the runners, and the deploy has its own workflow
+on:
+  push:
+    branches-ignore: [deploy/jarllindquist]
 
 jobs:
   test:

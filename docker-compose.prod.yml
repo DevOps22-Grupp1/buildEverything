@@ -1,0 +1,119 @@
+# Scamazon on jarllindquist.com/scamazon, deployed by .github/workflows/deploy.yml.
+# docker-compose.yml is still the local stack (with mongo-express and published ports).
+#
+# - Only home-page-service is reachable, through Traefik. No ports are published: Docker ports
+#   bypass the server's firewall.
+# - A read-only demo (READ_ONLY=1): nobody can log in or change the products.
+# - Passwords come from .env, which the deploy writes from Vault (kv/scamazon); see .env.example.
+# - The project name "scamazon" matters: home-page-service calls the others by container name
+#   (scamazon-product-catalog-service-1 and so on).
+name: "scamazon"
+
+services:
+  # Built from source at a fixed commit, the one with the prefix, read-only and debug fixes
+  # (home-page-service#5). Never an older one: debug=True on the internet lets anyone run code.
+  home-page-service:
+    build:
+      context: https://github.com/DevOps22-Grupp1/home-page-service.git#430bf08ec6367bf392e84cc646fa7151a1e7c8b6:backend
+    restart: always
+    environment:
+      - READ_ONLY=1
+      - SECRET_KEY=${SECRET_KEY:?missing in .env}
+    networks:
+      - my_network
+      - traefik-net
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik-net"
+      - "traefik.http.routers.scamazon.rule=Host(`jarllindquist.com`) && PathPrefix(`/scamazon`)"
+      - "traefik.http.routers.scamazon.entrypoints=websecure"
+      - "traefik.http.routers.scamazon.tls.certresolver=myresolver"
+      # /scamazon -> /scamazon/, then the prefix off; stripPrefix sets X-Forwarded-Prefix,
+      # which the app uses to build its links
+      - "traefik.http.routers.scamazon.middlewares=scamazon-slash,scamazon-strip"
+      - "traefik.http.middlewares.scamazon-slash.redirectregex.regex=^(https?://[^/]+/scamazon)$$"
+      - "traefik.http.middlewares.scamazon-slash.redirectregex.replacement=$${1}/"
+      - "traefik.http.middlewares.scamazon-slash.redirectregex.permanent=true"
+      - "traefik.http.middlewares.scamazon-strip.stripprefix.prefixes=/scamazon"
+      - "traefik.http.services.scamazon.loadbalancer.server.port=4004"
+
+  order-processing-service:
+    image: passwordnotsafe/order-processing-service:latest
+    restart: always
+    networks:
+      - my_network
+    depends_on:
+      mongo-database-service:
+        condition: service_healthy
+    environment:
+      - SERVER_PORT=4007
+      - DB_HOST=mongo-database-service
+      - DB_PORT=27017
+      - DB_USERNAME=root
+      - DB_PASSWORD=${MONGO_ROOT_PASSWORD:?missing in .env}
+
+  product-catalog-service:
+    image: passwordnotsafe/produkt-catalog-service:latest
+    restart: always
+    networks:
+      - my_network
+    depends_on:
+      mongo-database-service:
+        condition: service_healthy
+    environment:
+      - SERVER_PORT=4005
+      - DB_HOST=mongo-database-service
+      - DB_PORT=27017
+      - DB_USERNAME=root
+      - DB_PASSWORD=${MONGO_ROOT_PASSWORD:?missing in .env}
+
+  user-management-service:
+    image: passwordnotsafe/user-management-service:latest
+    restart: always
+    networks:
+      - my_network
+    depends_on:
+      mongo-database-service:
+        condition: service_healthy
+    environment:
+      - SERVER_PORT=4006
+      - DB_HOST=mongo-database-service
+      - DB_PORT=27017
+      - DB_USERNAME=root
+      - DB_PASSWORD=${MONGO_ROOT_PASSWORD:?missing in .env}
+
+  # One database for all three services. The aliases are the host names the services have used
+  # in different versions, so every image finds it.
+  mongo-database-service:
+    image: mongo:7
+    restart: always
+    networks:
+      my_network:
+        aliases:
+          - mongo
+          - mongo-product-catalog-service
+          - mongo-order-processing-service
+          - mongo-management-service
+    volumes:
+      # Seed data on first start only (an empty volume)
+      - ./init:/docker-entrypoint-initdb.d:ro
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.runCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 60s
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:?missing in .env}
+      MONGO_INITDB_DATABASE: allUsers
+
+volumes:
+  mongo-data:
+
+networks:
+  my_network:
+    driver: bridge
+  traefik-net:
+    external: true

@@ -1,0 +1,89 @@
+name: Deploy
+
+# Deploys docker-compose.prod.yml to jarllindquist.com/scamazon on every push to this branch.
+# Passwords come from Vault and are written to .env on the server; the repo is public, so no
+# password may show in the log.
+on:
+  push:
+    branches: [deploy/jarllindquist]
+    paths:
+      - docker-compose.prod.yml
+      - init/**
+      - .github/workflows/deploy.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# One deploy at a time; never cancelled halfway
+concurrency:
+  group: scamazon-deploy
+  cancel-in-progress: false
+
+env:
+  DEPLOY_DIR: /home/repos/scamazon
+  DEPLOY_BRANCH: deploy/jarllindquist
+  REPO_URL: https://github.com/DevOps22-Grupp1/buildEverything.git
+
+jobs:
+  deploy:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Import secrets from Vault
+        uses: hashicorp/vault-action@v3
+        with:
+          url: https://vault.jarllindquist.com
+          method: approle
+          roleId: ${{ secrets.VAULT_ROLE_ID }}
+          secretId: ${{ secrets.VAULT_SECRET_ID }}
+          secrets: |
+            kv/data/server-deploy SSH_HOST | SERVER_HOST ;
+            kv/data/server-deploy SSH_USERNAME | SERVER_USER ;
+            kv/data/server-deploy SERVER_PORT | SERVER_PORT ;
+            kv/data/server-deploy SSH_PRIVATE_KEY | SERVER_PRIVATE_KEY ;
+            kv/data/server-deploy SSH_HOST_FINGERPRINT | SSH_HOST_FINGERPRINT ;
+            kv/data/scamazon MONGO_ROOT_PASSWORD | MONGO_ROOT_PASSWORD ;
+            kv/data/scamazon SECRET_KEY | SECRET_KEY
+
+      # .env as one base64 string, so no special characters break on the way. vault-action masks
+      # the Vault values in the log, but the base64 string is new, so it is masked here.
+      - name: Build the .env
+        run: |
+          set -eu
+          for name in MONGO_ROOT_PASSWORD SECRET_KEY; do
+            value="${!name}"
+            case "$value" in *"'"*) echo "::error::$name contains ' (single quote)"; exit 1 ;; esac
+            printf "%s='%s'\n" "$name" "$value"
+          done > env.tmp
+          b64=$(base64 -w0 env.tmp)
+          rm env.tmp
+          echo "::add-mask::$b64"
+          echo "ENV_B64=$b64" >> "$GITHUB_ENV"
+
+      # Pinned to a commit (v1.2.5): the step gets the SSH key. The server's identity is checked
+      # against the fingerprint in Vault instead of trusting any server.
+      - name: Start on the server
+        uses: appleboy/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2 # v1.2.5
+        with:
+          host: ${{ env.SERVER_HOST }}
+          username: ${{ env.SERVER_USER }}
+          key: ${{ env.SERVER_PRIVATE_KEY }}
+          port: ${{ env.SERVER_PORT }}
+          fingerprint: ${{ env.SSH_HOST_FINGERPRINT }}
+          envs: DEPLOY_DIR,DEPLOY_BRANCH,REPO_URL,ENV_B64
+          command_timeout: 20m
+          script: |
+            set -e
+            # First deploy: clone only this branch
+            if [ ! -d "$DEPLOY_DIR/.git" ]; then
+              git clone --branch "$DEPLOY_BRANCH" --single-branch "$REPO_URL" "$DEPLOY_DIR"
+            fi
+            cd "$DEPLOY_DIR"
+            # Forward only; stops if the server has committed something of its own
+            git pull --ff-only
+            umask 077
+            printf '%s' "$ENV_B64" | base64 -d > .env
+            docker compose -f docker-compose.prod.yml config --quiet
+            docker compose -f docker-compose.prod.yml pull --ignore-buildable
+            docker compose -f docker-compose.prod.yml up -d --build --remove-orphans
+            docker compose -f docker-compose.prod.yml ps --format 'table {{.Name}}\t{{.Status}}'
