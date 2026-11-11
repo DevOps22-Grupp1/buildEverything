@@ -23,6 +23,16 @@ jobs:
           docker compose -f docker-compose.prod.yml config --quiet
           docker compose -f docker-compose.prod.yml up -d --build --wait --wait-timeout 300
 
+      - name: Run the migrations
+        run: |
+          for f in migrations/*.js; do
+            echo "migration $f"
+            docker compose -f docker-compose.prod.yml exec -T mongo-database-service \
+              sh -c 'mongosh --quiet -u root -p "$MONGO_INITDB_ROOT_PASSWORD" --authenticationDatabase admin' < "$f" | tee -a migration.log
+          done
+          # Every product the image migration names must exist
+          grep -E 'product images: matched ([0-9]+) of \1,' migration.log
+
       - name: Check the pages
         run: |
           docker compose -f docker-compose.prod.yml exec -T home-page-service python - <<'EOF'
@@ -62,6 +72,10 @@ jobs:
               failures.append("/products/: stylesheet link without the /scamazon prefix")
           if "Failed to fetch data" in body:
               failures.append("/products/: no products from product-catalog-service")
+          # Elgiganten's product images are gone and show a TV for every product
+          status, body = get("/products/?page=0")
+          if "elgiganten.se" in body:
+              failures.append("/products/?page=0: still links to dead elgiganten.se images")
 
           # Read-only demo: nothing that logs in or writes may answer
           for method, path in [("GET", "/login/"), ("POST", "/login/"), ("GET", "/admin-product/"), ("GET", "/cart/"),
