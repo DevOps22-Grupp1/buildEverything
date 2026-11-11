@@ -9,6 +9,7 @@ on:
     paths:
       - docker-compose.prod.yml
       - init/**
+      - migrations/**
       - .github/workflows/deploy.yml
   workflow_dispatch:
 
@@ -85,5 +86,12 @@ jobs:
             printf '%s' "$ENV_B64" | base64 -d > .env
             docker compose -f docker-compose.prod.yml config --quiet
             docker compose -f docker-compose.prod.yml pull --ignore-buildable
-            docker compose -f docker-compose.prod.yml up -d --build --remove-orphans
+            docker compose -f docker-compose.prod.yml up -d --build --remove-orphans --wait --wait-timeout 300
+            # Data fixes for the database that already exists (init/ only runs on an empty volume);
+            # every script is safe to run again
+            for f in migrations/*.js; do
+              echo "migration $f"
+              docker compose -f docker-compose.prod.yml exec -T mongo-database-service \
+                sh -c 'mongosh --quiet -u root -p "$MONGO_INITDB_ROOT_PASSWORD" --authenticationDatabase admin' < "$f"
+            done
             docker compose -f docker-compose.prod.yml ps --format 'table {{.Name}}\t{{.Status}}'

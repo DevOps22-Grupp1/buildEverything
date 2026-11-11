@@ -51,21 +51,21 @@ db.products.insertMany([
         "id": 6,
         "order": "Kitchen Aid 4,8L - ARTISAN - RED",
         "price": 490.60,
-        "image": "https://whirlpool-cdn.thron.com/delivery/public/thumbnail/whirlpool/pi-240352b9-0345-4027-95fb-0d7684c11d8e/sckne7/std/1000x1000/Kitchenaid_Food_processor_5KSM125EER_R_d_Profile.jpg?fill=zoom&fillcolor=rgba:255,255,255&scalemode=product&format=auto",
+        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/42/Red_KitchenAid_Artisan.jpg/960px-Red_KitchenAid_Artisan.jpg",
         "category": ["food-machine"]
     },
     {
         "id": 7,
         "order": "NOD Icecream machine 1,5 liter, BLACK",
         "price": 191.57,
-        "image": "https://static.goshopping.dk/products/600/nod-ismaskine-1-5-liter-ice-1533w-59202-1.jpg",
+        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/66/ICE_CREAM_MACHINE_S850C.jpg/960px-ICE_CREAM_MACHINE_S850C.jpg",
         "category": ["food-machine"]
     },
     {
         "id": 8,
         "order": "Sage Belgian Waffeiron - The Smart Waffle",
         "price": 258.68,
-        "image": "https://static.goshopping.dk/products/600/sage-bwm620-the-smart-waffle-vaffeljern-bwm-620-eu-5560-1.jpg",
+        "image": "https://upload.wikimedia.org/wikipedia/commons/2/26/Waffle_iron.JPG",
         "category": ["food-machine"]
     },
     {
@@ -143,7 +143,7 @@ db.products.insertMany([
         "id": 19,
         "order": "Samsung Galaxy S10",
         "price": 999.99,
-        "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQdS9tCPJnc-iiw3fMUCpq8eufGEP5rnOyE1A&usqp=CAU",
+        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/86/SAMSUNG_Galaxy_S10_5G.jpg/960px-SAMSUNG_Galaxy_S10_5G.jpg",
         "category": ["mobile"],
     },
     {
@@ -185,7 +185,7 @@ db.products.insertMany([
         "id": 25,
         "order": "Air Jordan 1 Retro High OG",
         "price": 2099.99,
-        "image": "https://static.nike.com/a/images/t_default/u_126ab356-44d8-4a06-89b4-fcdcc8df0245,c_scale,fl_relative,w_1.0,h_1.0,fl_layer_apply/e7c73107-7997-4d09-8893-04158b0e7757/air-jordan-1-retro-high-og-shoes-lZQrDX.png",
+        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f8/1985_Air_Jordan_1s.jpg/960px-1985_Air_Jordan_1s.jpg",
         "category": ["shoes"],
     },
     {
@@ -206,7 +206,7 @@ db.products.insertMany([
         "id": 28,
         "order": "Skyrunner Kangaroo shoes",
         "price": 239.34,
-        "image": "https://m.media-amazon.com/images/I/61FTkuWktYL._AC_UF1000,1000_QL80_.jpg",
+        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c5/Powerbocking_jumper_06.JPG/960px-Powerbocking_jumper_06.JPG",
         "category": ["shoes"]
     },
     {
@@ -241,7 +241,7 @@ db.products.insertMany([
         "id": 33,
         "order": "Acer Iconia Tab P10 (64GB) ",
         "price": 200.17,
-        "image": "https://crdms.images.consumerreports.org/f_auto,w_600/prod/products/cr/models/410411-9-inch-screen-and-larger-tablets-mobile-data-wifi-acer-iconia-tab-p10-11-k5p5-10035922.jpg",
+        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/14/Acer_Iconia_One_8.png/960px-Acer_Iconia_One_8.png",
         "category": ["tablet"]
     },
     {
@@ -269,111 +269,111 @@ db.products.insertMany([
         "id": 37,
         "order": "LG C2 65 OLED",
         "price": 3999.99,
-        "image": "https://www.lg.com/se/images/TV/features/OLED2022/OLEDC2/TV-OLED-C2-02-intro-Mobile-v2.jpg",
+        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f1/LG_OLED_TV.jpg/960px-LG_OLED_TV.jpg",
         "category": ["tv"],
     },
     {
         "id": 38,
         "order": "Samsung QN90A Neo QLED",
         "price": 4999.99,
-        "image": "https://reviewed-com-res.cloudinary.com/image/fetch/s--df1p37wd--/b_white,c_limit,cs_srgb,f_auto,fl_progressive.strip_profile,g_center,h_668,q_auto,w_1187/https://reviewed-production.s3.amazonaws.com/1616592529737/Samsung-QN90A-8.jpg",
+        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7c/Samsung_QLED_TV_8K_-_75_inches_-_2018-11-02.jpg/960px-Samsung_QLED_TV_8K_-_75_inches_-_2018-11-02.jpg",
         "category": ["tv"],
     },
     {
         "id": 39,
         "order": "Sony XBR-65A9G",
         "price": 5999.99,
-        "image": "https://m.media-amazon.com/images/I/61baGFdOXfL._AC_UF1000,1000_QL80_.jpg",
+        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6b/Televisor_Sony_Bravia_2008.jpg/960px-Televisor_Sony_Bravia_2008.jpg",
         "category": ["tv"],
     },
     {
         "id": 40,
         "order": "TCL 75' 75C849 Mini LED 4K Google TV",
         "price": 1723.22,
-        "image": "https://www.elgiganten.se/image/dv_web_D1800010021421037/600156/tcl-75-c845-4k-miniled-smart-tv-2023--pdp_zoom-3000--pdp_main-960.jpg",
+        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4f/TCL_H9700_55%E2%80%9D_Quantum_Dot_TV_with_Color_IQ_%2816675928890%29.jpg/960px-TCL_H9700_55%E2%80%9D_Quantum_Dot_TV_with_Color_IQ_%2816675928890%29.jpg",
         "category": ["tv"]
     },
     {
         "id": 41,
         "order": "Acer Predator Orion 3000",
         "price": 1999.99,
-        "image": "https://www.elgiganten.se/image/dv_web_D1800010021421037/300156/acer-predator-orion-3000-gaming-dator-2023--pdp_zoom-3000--pdp_main-960.jpg",
+        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2d/Acer_Predator_G6-710.jpg/960px-Acer_Predator_G6-710.jpg",
         "category": ["computer"]
     },
     {
         "id": 42,
         "order": "Apple iMac 27' M1 8GB/256GB",
         "price": 1699.99,
-        "image": "https://www.elgiganten.se/image/dv_web_D1800010021421037/600156/apple-imac-27-m1-8gb-256gb-2023--pdp_zoom-3000--pdp_main-960.jpg",
+        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/62/M1_iMac_blue_model.jpg/960px-M1_iMac_blue_model.jpg",
         "category": ["computer"]
     },
     {
         "id": 43,
         "order": "HP Pavilion 15-eg0009no 15.6' bärbar dator",
         "price": 599.99,
-        "image": "https://www.elgiganten.se/image/dv_web_D1800010021421037/300156/hp-pavilion-15-eg0009no-15-6-barbar-dator-2023--pdp_zoom-3000--pdp_main-960.jpg",
+        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/07/HP_Pavilion_dv2000_laptop.jpg/960px-HP_Pavilion_dv2000_laptop.jpg",
         "category": ["computer"]
     },
     {
         "id": 44,
         "order": "Lenovo Legion 5 15IMH05H 15.6' bärbar dator",
         "price": 999.99,
-        "image": "https://www.elgiganten.se/image/dv_web_D1800010021421037/300156/lenovo-legion-5-15imh05h-15-6-barbar-dator-2023--pdp_zoom-3000--pdp_main-960.jpg",
+        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8e/Lenovo_Legion_Y520_%281%29.jpg/960px-Lenovo_Legion_Y520_%281%29.jpg",
         "category": ["computer"]
     },
     {
         "id": 45,
         "order": "Acer Predator Triton 500",
         "price": 1999.99,
-        "image": "https://www.elgiganten.se/image/dv_web_D1800010021421037/300156/acer-predator-triton-500-gaming-dator-2023--pdp_zoom-3000--pdp_main-960.jpg",
+        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/27/Acer_Predator_laptops_and_mice%2C_Computex_Taipei_%2827373087145%29.jpg/960px-Acer_Predator_laptops_and_mice%2C_Computex_Taipei_%2827373087145%29.jpg",
         "category": ["computer"]
     },
     {
         "id": 46,
         "order": "Apple Watch Series 7 41mm",
         "price": 499.99,
-        "image": "https://www.elgiganten.se/image/dv_web_D1800010021421037/300156/apple-watch-series-7-41mm-2023--pdp_zoom-3000--pdp_main-960.jpg",
+        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d8/Apple_Watch_Series_7%3B_January_2022_%2802%29.jpg/960px-Apple_Watch_Series_7%3B_January_2022_%2802%29.jpg",
         "category": ["watch"]
     },
     {
         "id": 47,
         "order": "Fitbit Versa 3",
         "price": 199.99,
-        "image": "https://www.elgiganten.se/image/dv_web_D1800010021421037/300156/fitbit-versa-3-2023--pdp_zoom-3000--pdp_main-960.jpg",
+        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/20/Fitbit_Versa_Lite_No_-_12.jpg/960px-Fitbit_Versa_Lite_No_-_12.jpg",
         "category": ["watch"]
     },
     {
         "id": 48,
         "order": "Garmin Venu 2S",
         "price": 399.99,
-        "image": "https://www.elgiganten.se/image/dv_web_D1800010021421037/300156/garmin-venu-2s-2023--pdp_zoom-3000--pdp_main-960.jpg",
+        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d0/Garmin_Venu_3_%28a%29.JPG/960px-Garmin_Venu_3_%28a%29.JPG",
         "category": ["watch"]
     },
     {
         "id": 49,
         "order": "Samsung Galaxy Watch4 Classic",
         "price": 499.99,
-        "image": "https://www.elgiganten.se/image/dv_web_D1800010021421037/300156/samsung-galaxy-watch4-classic-2023--pdp_zoom-3000--pdp_main-960.jpg",
+        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/32/SAMSUNG_Galaxy_Watch_%285%29.jpg/960px-SAMSUNG_Galaxy_Watch_%285%29.jpg",
         "category": ["watch"]
     },
     {
         "id": 50,
         "order": "Samsung Galaxy Watch4",
         "price": 399.99,
-        "image": "https://www.elgiganten.se/image/dv_web_D1800010021421037/300156/samsung-galaxy-watch4-2023--pdp_zoom-3000--pdp_main-960.jpg",
+        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/05/Samsung_Galaxy_Watch_4.jpg/960px-Samsung_Galaxy_Watch_4.jpg",
         "category": ["watch"]
     },
     {
         "id": 51,
         "order": "Apple iPhone 13 Pro 128GB",
         "price": 999.99,
-        "image": "https://www.elgiganten.se/image/dv_web_D1800010021421037/300156/apple-iphone-13-pro-128gb-2023--pdp_zoom-3000--pdp_main-960.jpg", "category": ["mobile"]
+        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/91/Back_of_the_iPhone_13_Pro.jpg/960px-Back_of_the_iPhone_13_Pro.jpg", "category": ["mobile"]
     },
     {
         "id": 52,
         "order": "Crecent 24' 7-växlad",
         "price": 399.99,
-        "image": "https://www.elgiganten.se/image/dv_web_D1800010021421037/300156/crecent-24-7-vaxlad-2023--pdp_zoom-3000--pdp_main-960.jpg",
+        "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/90/Hybrid-bicycle-1.jpg/960px-Hybrid-bicycle-1.jpg",
         "category": ["bike"]
     },
 
