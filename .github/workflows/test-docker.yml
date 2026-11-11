@@ -1,15 +1,82 @@
 name: docker-compose-actions-workflow
-# Not on the deploy branch: docker-compose v1 is gone from the runners, and the deploy has its own workflow
+# Smoke test of docker-compose.prod.yml before it reaches the deploy branch: builds the pinned
+# home-page-service, starts the whole stack with throwaway passwords and checks the pages from
+# inside the container (no ports are published), with the headers Traefik sends.
 on:
-  push:
-    branches-ignore: [deploy/jarllindquist]
+  pull_request:
+    branches: [deploy/jarllindquist]
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v2
-      - name: Build the stack
-        run: docker-compose -f docker-test.yml up  -d
-      - name: Check the docker ps
-        run: docker logs buildeverything_home-page-service_1
+      - uses: actions/checkout@v4
+
+      - name: Start the stack
+        run: |
+          printf "MONGO_ROOT_PASSWORD='%s'\nSECRET_KEY='%s'\n" "$(openssl rand -hex 16)" "$(openssl rand -hex 32)" > .env
+          docker network create traefik-net
+          docker compose -f docker-compose.prod.yml config --quiet
+          docker compose -f docker-compose.prod.yml up -d --build --wait --wait-timeout 300
+
+      - name: Check the pages
+        run: |
+          docker compose -f docker-compose.prod.yml exec -T home-page-service python - <<'EOF'
+          import time
+          import urllib.error
+          import urllib.request
+
+          HEADERS = {"X-Forwarded-Prefix": "/scamazon", "X-Forwarded-Proto": "https",
+                     "X-Forwarded-Host": "jarllindquist.com", "X-Forwarded-For": "203.0.113.1"}
+
+          def get(path, method="GET"):
+              req = urllib.request.Request("http://127.0.0.1:4004" + path, headers=HEADERS, method=method)
+              try:
+                  with urllib.request.urlopen(req, timeout=10) as r:
+                      return r.status, r.read().decode("utf-8", "replace")
+              except urllib.error.HTTPError as e:
+                  return e.code, ""
+
+          # The services may still be connecting to the database
+          for _ in range(30):
+              status, body = get("/server/")
+              if status == 200 and body.count("Success") == 3:
+                  break
+              time.sleep(2)
+          else:
+              raise SystemExit("/server/ never showed all three services as Success")
+
+          failures = []
+          for path in ["/", "/home", "/products/", "/products/?page=2", "/about/", "/static/base.css", "/static/images/background2.jpg"]:
+              status, _ = get(path)
+              print(path, status)
+              if status != 200:
+                  failures.append(f"{path}: {status}, expected 200")
+
+          status, body = get("/products/")
+          if '/scamazon/static/base.css' not in body:
+              failures.append("/products/: stylesheet link without the /scamazon prefix")
+          if "Failed to fetch data" in body:
+              failures.append("/products/: no products from product-catalog-service")
+
+          # Read-only demo: nothing that logs in or writes may answer
+          for method, path in [("GET", "/login/"), ("POST", "/login/"), ("GET", "/admin-product/"), ("GET", "/cart/"),
+                               ("GET", "/buy/?id=1"), ("GET", "/delete/?id=1"), ("POST", "/update/"),
+                               ("POST", "/add_products/"), ("GET", "/payment")]:
+              status, _ = get(path, method)
+              print(method, path, status)
+              if status != 403:
+                  failures.append(f"{method} {path}: {status}, expected 403")
+
+          if failures:
+              raise SystemExit("\n".join(failures))
+          print("all checks passed")
+          EOF
+
+      - name: Logs
+        if: always()
+        run: docker compose -f docker-compose.prod.yml logs --no-color --tail 50

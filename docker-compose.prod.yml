@@ -5,20 +5,26 @@
 #   bypass the server's firewall.
 # - A read-only demo (READ_ONLY=1): nobody can log in or change the products.
 # - Passwords come from .env, which the deploy writes from Vault (kv/scamazon); see .env.example.
-# - The project name "scamazon" matters: home-page-service calls the others by container name
-#   (scamazon-product-catalog-service-1 and so on).
 name: "scamazon"
 
 services:
-  # Built from source at a fixed commit, the one with the prefix, read-only and debug fixes
-  # (home-page-service#5). Never an older one: debug=True on the internet lets anyone run code.
+  # Built from source at a fixed commit: the newer frontend (landing page, CSS in static/) with
+  # the prefix, read-only and login fixes (home-page-service#6). Never an unpinned one: older
+  # versions run with debug=True or let anyone delete products.
   home-page-service:
     build:
-      context: https://github.com/DevOps22-Grupp1/home-page-service.git#430bf08ec6367bf392e84cc646fa7151a1e7c8b6:backend
+      context: https://github.com/DevOps22-Grupp1/home-page-service.git#e80f844af694f94110471630628821725bc86bca:backend
     restart: always
     environment:
       - READ_ONLY=1
       - SECRET_KEY=${SECRET_KEY:?missing in .env}
+      - SERVER_PORT=4004
+      - PRODUCT_URL=product-catalog-service
+      - PRODUCT_PORT=4005
+      - USER_URL=user-management-service
+      - USER_PORT=4006
+      - ORDER_URL=order-processing-service
+      - ORDER_PORT=4007
     networks:
       - my_network
       - traefik-net
