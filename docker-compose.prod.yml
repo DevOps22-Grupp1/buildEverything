@@ -13,7 +13,7 @@ services:
   # versions run with debug=True or let anyone delete products.
   home-page-service:
     build:
-      context: https://github.com/DevOps22-Grupp1/home-page-service.git#bae847352d554aefe54eca7f9dfa256e67041220:backend
+      context: https://github.com/DevOps22-Grupp1/home-page-service.git#7e18165ecd52784a8e8e824183dfd7ff72ea618e:backend
     restart: always
     environment:
       - READ_ONLY=1
