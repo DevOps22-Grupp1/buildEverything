@@ -145,6 +145,18 @@ jobs:
           expect(status == 200, f"/payment: {status}")
           status, _, body, _ = shopper.go("/cart/")
           expect("Remove" not in body and "Pay " not in body, "/cart/ after paying: the cart is not empty")
+          # My orders: the order just paid, in kronor
+          status, _, body, _ = shopper.go("/orders/")
+          expect(status == 200 and "Order #" in body and " kr" in body and "Paid in SEK" in body,
+                 f"/orders/: {status}, no order in kronor")
+          status, location, _, _ = anon.go("/orders/")
+          expect(location.endswith("/scamazon/login/"), f"/orders/ without a login: {status} {location}")
+
+          # A product page, with the robots' reviews; a product that does not exist is a 404
+          status, _, body, _ = anon.go("/product/1/")
+          expect(status == 200 and 'data-trick="reviews"' in body and "★★★★★" in body, f"/product/1/: {status}")
+          status, _, _, _ = anon.go("/product/99999/")
+          expect(status == 404, f"/product/99999/: {status}, expected 404")
           status, location, _, _ = shopper.go("/currency", "POST", {"currency": "EUR", "next": "//evil.example/"})
           expect(location.endswith("/scamazon/products/"), f"/currency to another site: {location}")
           status, location, _, _ = shopper.go("/admin-product/")
