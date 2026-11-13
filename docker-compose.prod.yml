@@ -14,17 +14,19 @@ services:
   # avatars to pick from (#11), the account page (#12), prices in four currencies (#13) and a
   # new design next to the classic one (#14), four designs to pick from (#15), and the dark
   # patterns with "Reveal the tricks" plus a Terminal design (#16), product pages and My orders
-  # (#17), live status and the admin dashboard (#18).
+  # (#17), live status and the admin dashboard (#18), limits on sign-ups and logins (#19).
   # Never an unpinned one: older versions run with debug=True, let anyone delete products or let
   # anyone sign up as admin.
   home-page-service:
     build:
-      context: https://github.com/DevOps22-Grupp1/home-page-service.git#2fe476f257f52008cbb9d3dff6c0f9d6bd7c1617:backend
+      context: https://github.com/DevOps22-Grupp1/home-page-service.git#7ac9691b9ddcaebe650215d1b1234490a1056222:backend
     restart: always
     environment:
       - COOKIE_SECURE=1
       # Probe the three services every 30 s, so the status page has a history without visitors
       - STATUS_SAMPLE_SECONDS=30
+      # Sign-up says accounts are deleted after this many days; the janitor below does it
+      - RETENTION_DAYS=30
       # The public demo account, shown on the login page (user-management-service creates it)
       - DEMO_USERNAME=demo
       - DEMO_PASSWORD=demo
@@ -85,12 +87,13 @@ services:
       - DB_PASSWORD=${MONGO_ROOT_PASSWORD:?missing in .env}
 
   # Built from source too: hashed passwords, and sign-up always makes a customer
-  # (user-management-service#5), the demo account (#6) and the account page endpoints (#7).
+  # (user-management-service#5), the demo account (#6), the account page endpoints (#7) and the
+  # accounts' created date (#8).
   # The old image stored plaintext
   # passwords and any role sent.
   user-management-service:
     build:
-      context: https://github.com/DevOps22-Grupp1/user-management-service.git#0f45506a5d24ad05bf027d6bdbd7579af14893e8:backend
+      context: https://github.com/DevOps22-Grupp1/user-management-service.git#aee9df1b228a020108243147e66236167d3027b9:backend
     restart: always
     networks:
       - my_network
@@ -134,6 +137,34 @@ services:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:?missing in .env}
       MONGO_INITDB_DATABASE: allUsers
+
+  # The nightly clean-up of the public demo (janitor/cleanup.js): old customer accounts with their
+  # carts and orders, old orders, and the demo account's cart. Runs once at start, then every
+  # night at 03:00 UTC. Same image as the database, so mongosh is there.
+  janitor:
+    image: mongo:7
+    restart: always
+    networks:
+      - my_network
+    depends_on:
+      mongo-database-service:
+        condition: service_healthy
+    volumes:
+      - ./janitor:/janitor:ro
+    environment:
+      - MONGO_ROOT_PASSWORD=${MONGO_ROOT_PASSWORD:?missing in .env}
+      - RETENTION_DAYS=30
+      - DEMO_USERNAME=demo
+    entrypoint:
+      - sh
+      - -c
+      - |
+        while true; do
+          mongosh --quiet --host mongo-database-service --authenticationDatabase admin \
+            -u root -p "$$MONGO_ROOT_PASSWORD" --file /janitor/cleanup.js
+          # Until the next 03:00 UTC
+          sleep $$(( (86400 + 3 * 3600 - $$(date +%s) % 86400) % 86400 + 1 ))
+        done
 
 volumes:
   mongo-data:
