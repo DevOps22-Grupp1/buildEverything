@@ -11,12 +11,12 @@ name: "scamazon"
 services:
   # Built from source at a fixed commit: the newer frontend (landing page, CSS in static/) with
   # per-visitor sessions, customer accounts and the magic-link admin (home-page-service#10), and
-  # avatars to pick from (#11).
+  # avatars to pick from (#11), and the account page (#12).
   # Never an unpinned one: older versions run with debug=True, let anyone delete products or let
   # anyone sign up as admin.
   home-page-service:
     build:
-      context: https://github.com/DevOps22-Grupp1/home-page-service.git#1387fd8fe336413cf18dc7139ab221362c124f27:backend
+      context: https://github.com/DevOps22-Grupp1/home-page-service.git#312744d1e33d57e71d0f98a6ca480da943f1ff70:backend
     restart: always
     environment:
       - COOKIE_SECURE=1
@@ -80,11 +80,12 @@ services:
       - DB_PASSWORD=${MONGO_ROOT_PASSWORD:?missing in .env}
 
   # Built from source too: hashed passwords, and sign-up always makes a customer
-  # (user-management-service#5), and the demo account (#6). The old image stored plaintext
+  # (user-management-service#5), the demo account (#6) and the account page endpoints (#7).
+  # The old image stored plaintext
   # passwords and any role sent.
   user-management-service:
     build:
-      context: https://github.com/DevOps22-Grupp1/user-management-service.git#3330df936c0fb053109b7458eeb4ed9efde832a6:backend
+      context: https://github.com/DevOps22-Grupp1/user-management-service.git#0f45506a5d24ad05bf027d6bdbd7579af14893e8:backend
     restart: always
     networks:
       - my_network

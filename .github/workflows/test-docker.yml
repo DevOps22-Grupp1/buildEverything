@@ -160,6 +160,34 @@ jobs:
           expect("/scamazon/static/avatars/avatar-4.svg" in body, "demo: not its avatar")
           status, location, _, _ = demo.go("/admin-product/")
           expect(status == 302 and location.endswith("/scamazon/admin-login/"), f"/admin-product/ as demo: {status} {location}")
+          # The demo account keeps its password and cannot be deleted
+          demo.go("/account/password", "POST", {"current": "demo", "new": "taken", "repeat": "taken"})
+          demo.go("/account/delete", "POST", {"password": "demo"})
+          relogin = Visitor()
+          relogin.go("/login/", "POST", {"sign_in": "Sign In", "user": "demo", "password": "demo"})
+          expect(relogin.go("/cart/")[0] == 200, "the demo account's password changed, or the account is gone")
+
+          # The account page: avatar, password, deleting the account
+          owner = Visitor()
+          owner.go("/login/", "POST", {"sign_up": "Sign Up", "username": "ci-owner", "name": "Owner", "pass": "first",
+                                       "email": "owner@example.com", "avatar": "avatar-1.svg", "user": "", "password": ""})
+          status, _, body, _ = owner.go("/account/")
+          expect(status == 200 and "ci-owner" in body and "Delete my account" in body, f"/account/: {status}")
+          owner.go("/account/profile", "POST", {"avatar": "avatar-7.svg", "name": "Owner Two", "email": "owner@example.com"})
+          status, _, body, _ = owner.go("/account/")
+          expect('value="avatar-7.svg" checked' in body and "Owner Two" in body, "/account/profile: avatar or name not saved")
+          status, location, _, _ = owner.go("/account/password", "POST", {"current": "first", "new": "second", "repeat": "second"})
+          expect("Password+changed" in location, f"/account/password: {location}")
+          old = Visitor()
+          old.go("/login/", "POST", {"sign_in": "Sign In", "user": "ci-owner", "password": "first"})
+          expect(old.go("/cart/")[0] == 302, "the old password still logs in")
+          status, location, _, _ = owner.go("/account/delete", "POST", {"password": "wrong"})
+          expect("account+is+kept" in location, f"/account/delete with a wrong password: {location}")
+          status, location, _, _ = owner.go("/account/delete", "POST", {"password": "second"})
+          expect(location.endswith("/scamazon/login/"), f"/account/delete: {status} {location}")
+          gone = Visitor()
+          gone.go("/login/", "POST", {"sign_in": "Sign In", "user": "ci-owner", "password": "second"})
+          expect(gone.go("/cart/")[0] == 302, "the deleted account still logs in")
 
           if failures:
               raise SystemExit("\n".join(failures))
@@ -183,6 +211,7 @@ jobs:
           const withPassword = db.users.countDocuments({ username: { $in: demo }, password: { $exists: true } });
           if (withPassword) throw new Error(`${withPassword} demo accounts still have a password`);
           const shared = db.users.findOne({ username: "demo" });
+          if (db.users.findOne({ username: "ci-owner" })) throw new Error("ci-owner was deleted but is still stored");
           if (!shared || shared.role !== "customer" || !/^(pbkdf2|scrypt):/.test(shared.password)) throw new Error("the demo account is missing, not a customer or its password is not hashed");
           print("accounts: all customers, every password hashed, demo accounts without a password, the public demo account in place");
           EOF
