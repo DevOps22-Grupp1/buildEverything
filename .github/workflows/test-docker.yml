@@ -209,8 +209,10 @@ jobs:
 
       - name: Check the stored accounts
         run: |
+          # As a file, not on stdin: mongosh reading stdin is a prompt that prints an error and
+          # goes on (exit 0); with --file an error stops it and fails the step.
           docker compose -f docker-compose.prod.yml exec -T mongo-database-service \
-            sh -c 'mongosh --quiet -u root -p "$MONGO_INITDB_ROOT_PASSWORD" --authenticationDatabase admin allUsers' <<'EOF'
+            sh -c 'cat > /tmp/check.js && mongosh --quiet -u root -p "$MONGO_INITDB_ROOT_PASSWORD" --authenticationDatabase admin allUsers --file /tmp/check.js' <<'EOF'
           const u = db.users.findOne({ username: "ci-shopper" });
           if (!u) throw new Error("ci-shopper was not stored");
           if (u.role !== "customer") throw new Error(`ci-shopper has role ${u.role}`);
@@ -227,12 +229,13 @@ jobs:
           if (db.users.findOne({ username: "ci-owner" })) throw new Error("ci-owner was deleted but is still stored");
           // The shopper paid in kronor: the order keeps euro and what they saw
           const shopperId = db.users.findOne({ username: "ci-shopper" }).id;
-          const order = db.getSiblingDB("allOrders").orders.findOne({ userid: shopperId });
+          const order = db.getSiblingDB("allProducts").orders.findOne({ userid: shopperId });
           if (!order || order.currency !== "SEK" || !order.rate || !order.price_in_currency || typeof order.price !== "number")
             throw new Error(`the shopper's order: ${JSON.stringify(order)}`);
           print(`order: ${order.price} EUR = ${order.price_in_currency} SEK at ${order.rate}`);
           // Paid carts are emptied, and a deleted account leaves no cart rows behind
-          const carts = db.getSiblingDB("allOrders").cart;
+          // order-processing keeps orders and carts in allProducts (init/02 seeds an unused allOrders)
+          const carts = db.getSiblingDB("allProducts").cart;
           if (carts.countDocuments({ userid: shopperId })) throw new Error("the shopper's cart was not emptied after paying");
           const userIds = db.users.distinct("id");
           const orphans = carts.countDocuments({ userid: { $nin: userIds } });
