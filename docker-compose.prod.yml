@@ -13,15 +13,18 @@ services:
   # per-visitor sessions, customer accounts and the magic-link admin (home-page-service#10), and
   # avatars to pick from (#11), the account page (#12), prices in four currencies (#13) and a
   # new design next to the classic one (#14), four designs to pick from (#15), and the dark
-  # patterns with "Reveal the tricks" plus a Terminal design (#16), product pages and My orders (#17).
+  # patterns with "Reveal the tricks" plus a Terminal design (#16), product pages and My orders
+  # (#17), live status and the admin dashboard (#18).
   # Never an unpinned one: older versions run with debug=True, let anyone delete products or let
   # anyone sign up as admin.
   home-page-service:
     build:
-      context: https://github.com/DevOps22-Grupp1/home-page-service.git#a304fc6ff15b83be32069dab3988fd76dd61175b:backend
+      context: https://github.com/DevOps22-Grupp1/home-page-service.git#2fe476f257f52008cbb9d3dff6c0f9d6bd7c1617:backend
     restart: always
     environment:
       - COOKIE_SECURE=1
+      # Probe the three services every 30 s, so the status page has a history without visitors
+      - STATUS_SAMPLE_SECONDS=30
       # The public demo account, shown on the login page (user-management-service creates it)
       - DEMO_USERNAME=demo
       - DEMO_PASSWORD=demo

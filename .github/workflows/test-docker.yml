@@ -77,7 +77,7 @@ jobs:
           # The services may still be connecting to the database
           for _ in range(30):
               status, _, body, _ = anon.go("/server/")
-              if status == 200 and (body.count("Success") == 3 or body.count('<li class="status-up"') == 3):
+              if status == 200 and (body.count("Success") == 3 or body.count('status-card is-up') == 3):
                   break
               time.sleep(2)
           else:
@@ -157,6 +157,21 @@ jobs:
           expect(status == 200 and 'data-trick="reviews"' in body and "★★★★★" in body, f"/product/1/: {status}")
           status, _, _, _ = anon.go("/product/99999/")
           expect(status == 404, f"/product/99999/: {status}, expected 404")
+
+          # Live status: three services up with a response time, and the deeper checks
+          import json as _json
+          status, _, body, _ = anon.go("/status.json")
+          services = _json.loads(body)["services"] if status == 200 else []
+          expect(len(services) == 3 and all(s["up"] and s["ms"] is not None for s in services),
+                 f"/status.json: {status} {services}")
+          status, _, body, _ = anon.go("/status/checks.json")
+          checks = {c["name"]: c for c in _json.loads(body)["checks"]} if status == 200 else {}
+          for name in ["Products load", "Accounts answer", "Orders answer"]:
+              expect(checks.get(name, {}).get("ok"), f"/status/checks.json: {name}: {checks.get(name)}")
+          # The ECB check depends on the ECB answering the runner; reported, not required
+          print("rates check:", checks.get("Exchange rates are fresh"))
+          status, location, _, _ = anon.go("/admin/")
+          expect(location.endswith("/scamazon/admin-login/"), f"/admin/ without the admin: {status} {location}")
           status, location, _, _ = shopper.go("/currency", "POST", {"currency": "EUR", "next": "//evil.example/"})
           expect(location.endswith("/scamazon/products/"), f"/currency to another site: {location}")
           status, location, _, _ = shopper.go("/admin-product/")
