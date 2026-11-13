@@ -11,12 +11,12 @@ name: "scamazon"
 services:
   # Built from source at a fixed commit: the newer frontend (landing page, CSS in static/) with
   # per-visitor sessions, customer accounts and the magic-link admin (home-page-service#10), and
-  # avatars to pick from (#11), and the account page (#12).
+  # avatars to pick from (#11), the account page (#12) and prices in four currencies (#13).
   # Never an unpinned one: older versions run with debug=True, let anyone delete products or let
   # anyone sign up as admin.
   home-page-service:
     build:
-      context: https://github.com/DevOps22-Grupp1/home-page-service.git#312744d1e33d57e71d0f98a6ca480da943f1ff70:backend
+      context: https://github.com/DevOps22-Grupp1/home-page-service.git#2ffeccec4089d0954a7f4d4b8f8d11d47aa29144:backend
     restart: always
     environment:
       - COOKIE_SECURE=1
