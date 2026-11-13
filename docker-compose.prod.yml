@@ -3,20 +3,22 @@
 #
 # - Only home-page-service is reachable, through Traefik. No ports are published: Docker ports
 #   bypass the server's firewall.
-# - A read-only demo (READ_ONLY=1): nobody can log in or change the products.
+# - Two kinds of account: customers sign up and log in with a password and can buy; the admin
+#   logs in with the magic link to Telegram (n8n, app "scamazon-admin") and has no password.
 # - Passwords come from .env, which the deploy writes from Vault (kv/scamazon); see .env.example.
 name: "scamazon"
 
 services:
   # Built from source at a fixed commit: the newer frontend (landing page, CSS in static/) with
-  # the prefix, read-only and login fixes (home-page-service#6). Never an unpinned one: older
-  # versions run with debug=True or let anyone delete products.
+  # per-visitor sessions, customer accounts and the magic-link admin (home-page-service#10).
+  # Never an unpinned one: older versions run with debug=True, let anyone delete products or let
+  # anyone sign up as admin.
   home-page-service:
     build:
-      context: https://github.com/DevOps22-Grupp1/home-page-service.git#f10253ddf256e07f59b7ed6f591cef86d9e80c98:backend
+      context: https://github.com/DevOps22-Grupp1/home-page-service.git#42a95430140cf617b350b697c11487de76e1c7dc:backend
     restart: always
     environment:
-      - READ_ONLY=1
+      - COOKIE_SECURE=1
       - SECRET_KEY=${SECRET_KEY:?missing in .env}
       - SERVER_PORT=4004
       - PRODUCT_URL=product-catalog-service
@@ -73,8 +75,11 @@ services:
       - DB_USERNAME=root
       - DB_PASSWORD=${MONGO_ROOT_PASSWORD:?missing in .env}
 
+  # Built from source too: hashed passwords, and sign-up always makes a customer
+  # (user-management-service#5). The old image stored plaintext passwords and any role sent.
   user-management-service:
-    image: passwordnotsafe/user-management-service:latest
+    build:
+      context: https://github.com/DevOps22-Grupp1/user-management-service.git#ed56ff6276b9f9e482c47f4b065c1b30a1b0ef4b:backend
     restart: always
     networks:
       - my_network
