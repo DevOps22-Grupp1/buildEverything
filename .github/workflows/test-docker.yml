@@ -98,7 +98,7 @@ jobs:
           expect(status == 302 and location.endswith("/scamazon/home"), f"/ in the new design: {status} {location}")
 
           status, _, body, _ = anon.go("/products/")
-          expect("/scamazon/static/base.css" in body, "/products/: stylesheet link without the /scamazon prefix")
+          expect("/scamazon/static/modern.css" in body, "/products/: stylesheet link without the /scamazon prefix")
           expect("Failed to fetch data" not in body, "/products/: no products from product-catalog-service")
           expect("Grab it" not in body and "Add to cart" not in body, "/products/: a buy button shown to a visitor who is not logged in")
           expect("modern.css" in body, "/products/: not the new design by default")
