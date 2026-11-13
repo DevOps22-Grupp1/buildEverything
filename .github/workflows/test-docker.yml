@@ -168,7 +168,16 @@ jobs:
               status, _, body, _ = classic.go(path)
               expect(status == 200 and "modern.css" not in body, f"{path} in the classic design: {status}")
           status, _, body, _ = classic.go("/products/")
-          expect("New design" in body and "/scamazon/static/base.css" in body, "/products/ in the classic design: no switch back or no classic CSS")
+          expect('class="ds-select"' in body and "/scamazon/static/base.css" in body, "/products/ in the classic design: no design picker or no classic CSS")
+
+          # Dark and clean: the modern pages with their own style, and the same picker
+          for style in ["dark", "clean"]:
+              look = Visitor()
+              look.go("/theme", "POST", {"theme": style, "next": "/home"})
+              for path in ["/home", "/products/", "/login/", "/server/"]:
+                  status, _, body, _ = look.go(path)
+                  expect(status == 200 and f'data-style="{style}"' in body and body.count('class="ds-select"') == 1,
+                         f"{path} in the {style} design: {status}")
           # A customer of its own, so the shopper's cart stays empty for the Mongo check
           fan = Visitor()
           fan.go("/theme", "POST", {"theme": "classic", "next": "/login/"})
