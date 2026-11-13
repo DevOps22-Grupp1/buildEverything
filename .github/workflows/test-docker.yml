@@ -139,6 +139,8 @@ jobs:
           print("rate note:", [l.strip() for l in body.splitlines() if "converted from euro" in l][:1])
           status, _, body, _ = shopper.go("/payment")
           expect(status == 200, f"/payment: {status}")
+          status, _, body, _ = shopper.go("/cart/")
+          expect("Delete item" not in body, "/cart/ after paying: the cart is not empty")
           status, location, _, _ = shopper.go("/currency", "POST", {"currency": "EUR", "next": "//evil.example/"})
           expect(location.endswith("/scamazon/products/"), f"/currency to another site: {location}")
           status, location, _, _ = shopper.go("/admin-product/")
@@ -183,6 +185,7 @@ jobs:
                                        "email": "owner@example.com", "avatar": "avatar-1.svg", "user": "", "password": ""})
           status, _, body, _ = owner.go("/account/")
           expect(status == 200 and "ci-owner" in body and "Delete my account" in body, f"/account/: {status}")
+          owner.go("/buy/?id=2")  # a cart row that deleting the account must take along
           owner.go("/account/profile", "POST", {"avatar": "avatar-7.svg", "name": "Owner Two", "email": "owner@example.com"})
           status, _, body, _ = owner.go("/account/")
           expect('value="avatar-7.svg" checked' in body and "Owner Two" in body, "/account/profile: avatar or name not saved")
@@ -228,6 +231,12 @@ jobs:
           if (!order || order.currency !== "SEK" || !order.rate || !order.price_in_currency || typeof order.price !== "number")
             throw new Error(`the shopper's order: ${JSON.stringify(order)}`);
           print(`order: ${order.price} EUR = ${order.price_in_currency} SEK at ${order.rate}`);
+          // Paid carts are emptied, and a deleted account leaves no cart rows behind
+          const carts = db.getSiblingDB("allOrders").cart;
+          if (carts.countDocuments({ userid: shopperId })) throw new Error("the shopper's cart was not emptied after paying");
+          const userIds = db.users.distinct("id");
+          const orphans = carts.countDocuments({ userid: { $nin: userIds } });
+          if (orphans) throw new Error(`${orphans} cart rows belong to no account (deleted account's cart left behind)`);
           if (!shared || shared.role !== "customer" || !/^(pbkdf2|scrypt):/.test(shared.password)) throw new Error("the demo account is missing, not a customer or its password is not hashed");
           print("accounts: all customers, every password hashed, demo accounts without a password, the public demo account in place");
           EOF

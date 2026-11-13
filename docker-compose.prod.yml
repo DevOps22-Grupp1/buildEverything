@@ -16,7 +16,7 @@ services:
   # anyone sign up as admin.
   home-page-service:
     build:
-      context: https://github.com/DevOps22-Grupp1/home-page-service.git#88e83214ab7cc078e58383358bd9c4c972b4b8fe:backend
+      context: https://github.com/DevOps22-Grupp1/home-page-service.git#2ffeccec4089d0954a7f4d4b8f8d11d47aa29144:backend
     restart: always
     environment:
       - COOKIE_SECURE=1
