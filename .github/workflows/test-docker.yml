@@ -131,6 +131,16 @@ jobs:
           expect(status == 302, f"/buy/ as a customer: {status}")
           status, _, body, _ = shopper.go("/cart/")
           expect(status == 200 and "€" in body, f"/cart/ as a customer: {status}")
+          # Prices in kronor (ECB rate, or the fallback if the ECB is unreachable), then pay
+          status, location, _, _ = shopper.go("/currency", "POST", {"currency": "SEK", "next": "/cart/"})
+          expect(location.endswith("/scamazon/cart/"), f"/currency: {status} {location}")
+          status, _, body, _ = shopper.go("/cart/")
+          expect(" kr" in body and "converted from euro" in body, "/cart/ in SEK: no kronor or no rate note")
+          print("rate note:", [l.strip() for l in body.splitlines() if "converted from euro" in l][:1])
+          status, _, body, _ = shopper.go("/payment")
+          expect(status == 200, f"/payment: {status}")
+          status, location, _, _ = shopper.go("/currency", "POST", {"currency": "EUR", "next": "//evil.example/"})
+          expect(location.endswith("/scamazon/products/"), f"/currency to another site: {location}")
           status, location, _, _ = shopper.go("/admin-product/")
           expect(status == 302 and location.endswith("/scamazon/admin-login/"), f"/admin-product/ as a customer: {status} {location}")
           status, location, _, _ = shopper.go("/delete/?id=1")
@@ -212,6 +222,12 @@ jobs:
           if (withPassword) throw new Error(`${withPassword} demo accounts still have a password`);
           const shared = db.users.findOne({ username: "demo" });
           if (db.users.findOne({ username: "ci-owner" })) throw new Error("ci-owner was deleted but is still stored");
+          // The shopper paid in kronor: the order keeps euro and what they saw
+          const shopperId = db.users.findOne({ username: "ci-shopper" }).id;
+          const order = db.getSiblingDB("allOrders").orders.findOne({ userid: shopperId });
+          if (!order || order.currency !== "SEK" || !order.rate || !order.price_in_currency || typeof order.price !== "number")
+            throw new Error(`the shopper's order: ${JSON.stringify(order)}`);
+          print(`order: ${order.price} EUR = ${order.price_in_currency} SEK at ${order.rate}`);
           if (!shared || shared.role !== "customer" || !/^(pbkdf2|scrypt):/.test(shared.password)) throw new Error("the demo account is missing, not a customer or its password is not hashed");
           print("accounts: all customers, every password hashed, demo accounts without a password, the public demo account in place");
           EOF
