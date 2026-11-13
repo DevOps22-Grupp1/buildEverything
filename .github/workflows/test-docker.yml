@@ -171,7 +171,7 @@ jobs:
           expect('class="ds-select"' in body and "/scamazon/static/base.css" in body, "/products/ in the classic design: no design picker or no classic CSS")
 
           # Dark and clean: the modern pages with their own style, and the same picker
-          for style in ["dark", "clean"]:
+          for style in ["dark", "clean", "terminal"]:
               look = Visitor()
               look.go("/theme", "POST", {"theme": style, "next": "/home"})
               for path in ["/home", "/products/", "/login/", "/server/"]:
@@ -193,6 +193,20 @@ jobs:
           expect("modern.css" in body and "Grab it" in body, "switching back to the new design did not take")
           status, location, _, _ = fan.go("/theme", "POST", {"theme": "new", "next": "//evil.example/"})
           expect(location.endswith("/scamazon/products/"), f"/theme to another site: {location}")
+
+          # The dark patterns: marked on the pages, revealed on request, the pre-ticked add-on on the order
+          for key in ["countdown", "viewers", "anchor"]:
+              expect(f'data-trick="{key}"' in body, f"/products/: the {key} trick is not marked")
+          status, _, body, _ = fan.go("/cart/")
+          expect('data-trick="preselected"' in body and 'name="protection" id="protection" checked' in body,
+                 "/cart/: no pre-ticked add-on")
+          fan.go("/tricks", "POST", {"next": "/cart/"})
+          status, _, body, _ = fan.go("/cart/")
+          expect('class="reveal"' in body and "trick-panel" in body and "Hide the tricks" in body, "/cart/: Reveal the tricks did not take")
+          status, _, body, _ = fan.go("/payment", "POST", {"protection": "on"})
+          expect(status == 200, f"/payment with the add-on: {status}")
+          status, _, body, _ = anon.go("/tricks/")
+          expect(status == 200 and "False urgency" in body and "Confirmshaming" in body, f"/tricks/: {status}")
 
           # Another visitor is not the shopper (the old code had one shared user for everyone)
           status, _, body, _ = anon.go("/about/")
@@ -271,6 +285,14 @@ jobs:
           if (!order || order.currency !== "SEK" || !order.rate || !order.price_in_currency || typeof order.price !== "number")
             throw new Error(`the shopper's order: ${JSON.stringify(order)}`);
           print(`order: ${order.price} EUR = ${order.price_in_currency} SEK at ${order.rate}`);
+          // The classic-then-new customer paid with the pre-ticked add-on left on: it is on the order
+          const fanId = db.users.findOne({ username: "ci-classic" }).id;
+          const fanOrder = db.getSiblingDB("allProducts").orders.findOne({ userid: fanId });
+          if (!fanOrder || !fanOrder.extras || fanOrder.extras.length !== 1 || fanOrder.extras[0].name !== "Scam Protection Plus")
+            throw new Error(`ci-classic's order has no add-on: ${JSON.stringify(fanOrder && fanOrder.extras)}`);
+          if (Math.abs(fanOrder.price - fanOrder.history.reduce((sum, p) => sum + Number(p.price), 0) - 4.99) > 0.001)
+            throw new Error(`ci-classic's order total is not the items plus 4.99: ${fanOrder.price}`);
+          print(`add-on order: ${fanOrder.price} EUR with ${fanOrder.extras[0].name}`);
           // Paid carts are emptied, and a deleted account leaves no cart rows behind
           // order-processing keeps orders and carts in allProducts (init/02 seeds an unused allOrders)
           const carts = db.getSiblingDB("allProducts").cart;

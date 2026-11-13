@@ -12,12 +12,13 @@ services:
   # Built from source at a fixed commit: the newer frontend (landing page, CSS in static/) with
   # per-visitor sessions, customer accounts and the magic-link admin (home-page-service#10), and
   # avatars to pick from (#11), the account page (#12), prices in four currencies (#13) and a
-  # new design next to the classic one (#14), then four designs to pick from (#15).
+  # new design next to the classic one (#14), four designs to pick from (#15), and the dark
+  # patterns with "Reveal the tricks" plus a Terminal design (#16).
   # Never an unpinned one: older versions run with debug=True, let anyone delete products or let
   # anyone sign up as admin.
   home-page-service:
     build:
-      context: https://github.com/DevOps22-Grupp1/home-page-service.git#72e0e9677819818524e0d0b90e8e45c6b70f675a:backend
+      context: https://github.com/DevOps22-Grupp1/home-page-service.git#f76028d6beb7e8e7bab29d17336165ccc318250e:backend
     restart: always
     environment:
       - COOKIE_SECURE=1
