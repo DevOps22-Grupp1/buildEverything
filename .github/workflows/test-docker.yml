@@ -331,6 +331,44 @@ jobs:
           print("accounts: all customers, every password hashed, demo accounts without a password, the public demo account in place");
           EOF
 
+      - name: The janitor cleans up what is old, and nothing else
+        run: |
+          mongo() {
+            docker compose -f docker-compose.prod.yml exec -T mongo-database-service \
+              sh -c 'cat > /tmp/step.js && mongosh --quiet -u root -p "$MONGO_INITDB_ROOT_PASSWORD" --authenticationDatabase admin --file /tmp/step.js'
+          }
+          # An old customer with a cart row and an order, an old order of a current customer, and a
+          # row in the demo account's cart; everything else from the run above must stay
+          mongo <<'EOF'
+          const users = db.getSiblingDB("allUsers").users, shop = db.getSiblingDB("allProducts");
+          const old = new Date(Date.now() - 40 * 24 * 60 * 60 * 1000);
+          users.insertOne({ id: 9001, username: "ci-old", role: "customer", created: old });
+          shop.cart.insertOne({ id: 9001, userid: 9001, productid: 1 });
+          shop.orders.insertOne({ id: 9001, userid: 9001, time: "2026-01-01 10:00:00.0", price: 1 });
+          const shopper = users.findOne({ username: "ci-shopper" });
+          shop.orders.insertOne({ id: 9002, userid: shopper.id, time: "2020-01-01 10:00:00.0", price: 2 });
+          shop.cart.insertOne({ id: 9003, userid: users.findOne({ username: "demo" }).id, productid: 1 });
+          print("fixtures in place");
+          EOF
+          docker compose -f docker-compose.prod.yml exec -T janitor \
+            sh -c 'mongosh --quiet --host mongo-database-service --authenticationDatabase admin -u root -p "$MONGO_ROOT_PASSWORD" --file /janitor/cleanup.js' | tee janitor.log
+          grep -E 'deleted 1 accounts \(1 cart rows, 1 orders\), 1 older orders, 1 rows in the demo cart' janitor.log
+          mongo <<'EOF'
+          const users = db.getSiblingDB("allUsers").users, shop = db.getSiblingDB("allProducts");
+          if (users.findOne({ username: "ci-old" })) throw new Error("the old account is still there");
+          if (shop.cart.findOne({ id: 9001 }) || shop.orders.findOne({ id: 9001 })) throw new Error("the old account's cart or order is still there");
+          if (shop.orders.findOne({ id: 9002 })) throw new Error("the old order is still there");
+          const demo = users.findOne({ username: "demo" });
+          if (!demo) throw new Error("the janitor deleted the demo account");
+          if (shop.cart.countDocuments({ userid: demo.id })) throw new Error("the demo cart was not emptied");
+          for (const name of ["ci-shopper", "ci-classic", "emclinden0"]) {
+            if (!users.findOne({ username: name })) throw new Error(`the janitor deleted ${name}, who is not old`);
+          }
+          const shopper = users.findOne({ username: "ci-shopper" });
+          if (!shop.orders.findOne({ userid: shopper.id, currency: "SEK" })) throw new Error("the janitor deleted today's order");
+          print("janitor: the old account, its cart and order, the old order and the demo cart are gone; the rest stays");
+          EOF
+
       - name: Logs
         if: always()
         run: docker compose -f docker-compose.prod.yml logs --no-color --tail 50
