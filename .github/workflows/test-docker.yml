@@ -119,13 +119,14 @@ jobs:
           shopper = Visitor()
           status, location, _, set_cookie = shopper.go("/login/", "POST", {
               "sign_up": "Sign Up", "username": "ci-shopper", "name": "CI", "pass": "ci-password",
-              "email": "ci@example.com", "avatar": "", "select": "admin", "user": "", "password": ""})
+              "email": "ci@example.com", "avatar": "avatar-5.svg", "select": "admin", "user": "", "password": ""})
           print("sign-up", status, location)
           expect(status == 302 and location.endswith("/scamazon/products/"), f"sign-up: {status} {location}")
           expect("SameSite=Strict" in set_cookie and "Secure" in set_cookie and "HttpOnly" in set_cookie,
                  f"session cookie flags: {set_cookie}")
           status, _, body, _ = shopper.go("/products/")
           expect("Add to cart" in body and "ci-shopper" in body, "/products/ as a customer: no Add to cart or no name")
+          expect("/scamazon/static/avatars/avatar-5.svg" in body, "/products/ as a customer: not the picked avatar")
           status, location, _, _ = shopper.go("/buy/?id=1")
           expect(status == 302, f"/buy/ as a customer: {status}")
           status, _, body, _ = shopper.go("/cart/")
@@ -146,6 +147,19 @@ jobs:
           # Another visitor is not the shopper (the old code had one shared user for everyone)
           status, _, body, _ = anon.go("/about/")
           expect("ci-shopper" not in body, "a visitor who is not logged in sees the shopper's name")
+
+          # The public demo account: named on the login page, logs in as a customer, is not admin
+          status, _, body, _ = anon.go("/login/")
+          expect("Log in as <strong>demo</strong>" in body, "/login/: the demo account is not named")
+          expect(body.count('name="avatar"') == 8, "/login/: not eight avatars to pick from")
+          demo = Visitor()
+          demo.go("/login/", "POST", {"sign_in": "Sign In", "user": "demo", "password": "demo"})
+          status, _, body, _ = demo.go("/cart/")
+          expect(status == 200, f"/cart/ as demo: {status}")
+          status, _, body, _ = demo.go("/about/")
+          expect("/scamazon/static/avatars/avatar-4.svg" in body, "demo: not its avatar")
+          status, location, _, _ = demo.go("/admin-product/")
+          expect(status == 302 and location.endswith("/scamazon/admin-login/"), f"/admin-product/ as demo: {status} {location}")
 
           if failures:
               raise SystemExit("\n".join(failures))
@@ -168,7 +182,9 @@ jobs:
           const demo = ["emclinden0", "tjewar1", "sgwyneth5", "akamen2", "cmor3", "rporker4", "admin", "user1"];
           const withPassword = db.users.countDocuments({ username: { $in: demo }, password: { $exists: true } });
           if (withPassword) throw new Error(`${withPassword} demo accounts still have a password`);
-          print("accounts: all customers, every password hashed, demo accounts without a password");
+          const shared = db.users.findOne({ username: "demo" });
+          if (!shared || shared.role !== "customer" || !/^(pbkdf2|scrypt):/.test(shared.password)) throw new Error("the demo account is missing, not a customer or its password is not hashed");
+          print("accounts: all customers, every password hashed, demo accounts without a password, the public demo account in place");
           EOF
 
       - name: Logs
