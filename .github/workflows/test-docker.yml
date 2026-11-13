@@ -77,7 +77,7 @@ jobs:
           # The services may still be connecting to the database
           for _ in range(30):
               status, _, body, _ = anon.go("/server/")
-              if status == 200 and body.count("Success") == 3:
+              if status == 200 and (body.count("Success") == 3 or body.count('<li class="status-up"') == 3):
                   break
               time.sleep(2)
           else:
@@ -88,16 +88,20 @@ jobs:
               if not ok:
                   failures.append(message)
 
-          for path in ["/", "/home", "/products/", "/products/?page=2", "/about/", "/login/", "/admin-login/",
-                       "/static/base.css", "/static/images/background2.jpg"]:
+          for path in ["/home", "/products/", "/products/?page=2", "/about/", "/server/", "/login/", "/admin-login/",
+                       "/static/base.css", "/static/modern.css", "/static/images/background2.jpg"]:
               status, _, _, _ = anon.go(path)
               print(path, status)
               expect(status == 200, f"{path}: {status}, expected 200")
+          # The new design opens on the shop; the classic one has the fade-in intro (checked below)
+          status, location, _, _ = anon.go("/")
+          expect(status == 302 and location.endswith("/scamazon/home"), f"/ in the new design: {status} {location}")
 
           status, _, body, _ = anon.go("/products/")
           expect("/scamazon/static/base.css" in body, "/products/: stylesheet link without the /scamazon prefix")
           expect("Failed to fetch data" not in body, "/products/: no products from product-catalog-service")
-          expect("Add to cart" not in body, "/products/: Add to cart shown to a visitor who is not logged in")
+          expect("Grab it" not in body and "Add to cart" not in body, "/products/: a buy button shown to a visitor who is not logged in")
+          expect("modern.css" in body, "/products/: not the new design by default")
           # Elgiganten's product images are gone and show a TV for every product
           status, _, body, _ = anon.go("/products/?page=0")
           expect("elgiganten.se" not in body, "/products/?page=0: still links to dead elgiganten.se images")
@@ -125,7 +129,7 @@ jobs:
           expect("SameSite=Strict" in set_cookie and "Secure" in set_cookie and "HttpOnly" in set_cookie,
                  f"session cookie flags: {set_cookie}")
           status, _, body, _ = shopper.go("/products/")
-          expect("Add to cart" in body and "ci-shopper" in body, "/products/ as a customer: no Add to cart or no name")
+          expect("Grab it" in body and "ci-shopper" in body, "/products/ as a customer: no buy button or no name")
           expect("/scamazon/static/avatars/avatar-5.svg" in body, "/products/ as a customer: not the picked avatar")
           status, location, _, _ = shopper.go("/buy/?id=1")
           expect(status == 302, f"/buy/ as a customer: {status}")
@@ -140,7 +144,7 @@ jobs:
           status, _, body, _ = shopper.go("/payment")
           expect(status == 200, f"/payment: {status}")
           status, _, body, _ = shopper.go("/cart/")
-          expect("Delete item" not in body, "/cart/ after paying: the cart is not empty")
+          expect("Remove" not in body and "Pay " not in body, "/cart/ after paying: the cart is not empty")
           status, location, _, _ = shopper.go("/currency", "POST", {"currency": "EUR", "next": "//evil.example/"})
           expect(location.endswith("/scamazon/products/"), f"/currency to another site: {location}")
           status, location, _, _ = shopper.go("/admin-product/")
@@ -155,6 +159,31 @@ jobs:
           wrong = Visitor()
           wrong.go("/login/", "POST", {"sign_in": "Sign In", "user": "ci-shopper", "password": "nope"})
           expect(wrong.go("/cart/")[0] == 302, "a wrong password logged in")
+
+          # The classic design is still whole: a visitor and the shopper switch to it
+          classic = Visitor()
+          status, location, _, _ = classic.go("/theme", "POST", {"theme": "classic", "next": "/products/"})
+          expect(location.endswith("/scamazon/products/"), f"/theme: {status} {location}")
+          for path in ["/", "/home", "/products/", "/about/", "/server/", "/login/", "/admin-login/"]:
+              status, _, body, _ = classic.go(path)
+              expect(status == 200 and "modern.css" not in body, f"{path} in the classic design: {status}")
+          status, _, body, _ = classic.go("/products/")
+          expect("New design" in body and "/scamazon/static/base.css" in body, "/products/ in the classic design: no switch back or no classic CSS")
+          # A customer of its own, so the shopper's cart stays empty for the Mongo check
+          fan = Visitor()
+          fan.go("/theme", "POST", {"theme": "classic", "next": "/login/"})
+          fan.go("/login/", "POST", {"sign_up": "Sign Up", "username": "ci-classic", "name": "Classic", "pass": "retro",
+                                     "email": "classic@example.com", "avatar": "avatar-2.svg", "user": "", "password": ""})
+          fan.go("/buy/?id=3")
+          status, _, body, _ = fan.go("/cart/")
+          expect(status == 200 and "Delete item" in body and "Pay:" in body, "/cart/ in the classic design")
+          status, _, body, _ = fan.go("/products/")
+          expect("Add to cart" in body, "/products/ in the classic design: no Add to cart for a customer")
+          fan.go("/theme", "POST", {"theme": "new", "next": "/products/"})
+          status, _, body, _ = fan.go("/products/")
+          expect("modern.css" in body and "Grab it" in body, "switching back to the new design did not take")
+          status, location, _, _ = fan.go("/theme", "POST", {"theme": "new", "next": "//evil.example/"})
+          expect(location.endswith("/scamazon/products/"), f"/theme to another site: {location}")
 
           # Another visitor is not the shopper (the old code had one shared user for everyone)
           status, _, body, _ = anon.go("/about/")
